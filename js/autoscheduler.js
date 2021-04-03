@@ -1,3 +1,6 @@
+// Short-hand, use e to call create elements
+const e = React.createElement;
+
 class homescreen extends React.Component {
     constructor(props) {
         super(props);
@@ -5,13 +8,11 @@ class homescreen extends React.Component {
     }
 
     render() {
-        return (
-            <p>Hello World!</p>
-        );
+        return e("p", null, "Hello world");
     }
 }
 
 ReactDOM.render(
-    <homescreen />,
+    e(homescreen, null, null),
     document.getElementById('reactEntry')
 );
