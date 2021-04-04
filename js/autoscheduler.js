@@ -6,30 +6,69 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
-var homeScreen = function (_React$Component) {
-    _inherits(homeScreen, _React$Component);
+var HomeScreen = function (_React$Component) {
+    _inherits(HomeScreen, _React$Component);
 
-    function homeScreen(props) {
-        _classCallCheck(this, homeScreen);
+    function HomeScreen(props) {
+        _classCallCheck(this, HomeScreen);
 
-        var _this = _possibleConstructorReturn(this, (homeScreen.__proto__ || Object.getPrototypeOf(homeScreen)).call(this, props));
+        var _this = _possibleConstructorReturn(this, (HomeScreen.__proto__ || Object.getPrototypeOf(HomeScreen)).call(this, props));
 
-        _this.state = {};
+        _this.state = {
+            scheduleExists: false
+        };
         return _this;
     }
 
-    _createClass(homeScreen, [{
-        key: 'render',
+    // Remove this module from the DOM 
+    // Load the schedule builder component
+
+
+    _createClass(HomeScreen, [{
+        key: "createSchedule",
+        value: function createSchedule() {}
+    }, {
+        key: "resumeSchedule",
+        value: function resumeSchedule() {}
+    }, {
+        key: "render",
         value: function render() {
             return React.createElement(
-                'p',
-                null,
-                'Hello world!'
+                "div",
+                { id: "homescreen" },
+                React.createElement(
+                    "h1",
+                    null,
+                    "Auto-scheduler"
+                ),
+                React.createElement(
+                    "button",
+                    { onClick: this.createSchedule },
+                    "Create Schedule"
+                ),
+                React.createElement("br", null),
+                this.state.scheduleExists && React.createElement(
+                    "button",
+                    { onClick: this.resumeSchedule },
+                    "Resume Schedule"
+                )
             );
         }
     }]);
 
-    return homeScreen;
+    return HomeScreen;
 }(React.Component);
 
-ReactDOM.render(React.createElement('homeScreen', null), document.getElementById('reactEntry'));
+var ScheduleBuilder = function (_React$Component2) {
+    _inherits(ScheduleBuilder, _React$Component2);
+
+    function ScheduleBuilder() {
+        _classCallCheck(this, ScheduleBuilder);
+
+        return _possibleConstructorReturn(this, (ScheduleBuilder.__proto__ || Object.getPrototypeOf(ScheduleBuilder)).apply(this, arguments));
+    }
+
+    return ScheduleBuilder;
+}(React.Component);
+
+ReactDOM.render(React.createElement(HomeScreen, null), document.getElementById('reactEntry'));
