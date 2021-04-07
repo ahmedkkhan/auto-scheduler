@@ -18,9 +18,14 @@ class ScheduleBuilder extends React.Component {
     constructor(props) {
         super(props);
 
+        // Break length and frequency are in seconds
+        // Break frequency refers to how long a task can be before adding a break
         this.state = {
             numTasks: 1,
-            tasks: [ScheduleBuilder.createTask()]
+            tasks: [ScheduleBuilder.createTask()],
+            midTaskBreakLength: 600,
+            betweenTaskBreakLength: 900,
+            breakFreq: 3600
         };
 
         this.addTask = this.addTask.bind(this);
@@ -54,7 +59,8 @@ class ScheduleBuilder extends React.Component {
     // Reset the schedule builder
     reset() {
         this.setState({
-            numTasks: 1
+            numTasks: 1,
+            tasks: [ScheduleBuilder.createTask()]
         });
     }
 
@@ -62,7 +68,85 @@ class ScheduleBuilder extends React.Component {
     processSchedule(event) {
         event.preventDefault();
 
-        let schedule = {};
+        // User input data lives in the state
+        // Use it to create an appropriate schedule
+        let schedule = {
+            elapsedTime: 0,
+            tasks: [],
+        };
+
+        // Deep clone the tasks list
+        let inputList = JSON.parse(JSON.stringify(this.state.tasks));
+
+        // Compute task durations in seconds
+        inputList.forEach((element) => {
+            element.duration = (element.hrs * 3600) + (element.mins * 60);
+        });
+
+        // Sort tasks based on urgency, breaking ties with longer tasks first
+        inputList.sort((a, b) => {
+            if(a.urgency > b.urgency) {
+                return 1;
+            } else if(a.urgency < b.urgency) {
+                return -1;
+            } else {
+                // break ties using task duration
+                if(a.duration > b.duration) {
+                    return -1;
+                }
+                return 1;
+            }
+        });
+
+        // Create the schedule data structure
+        let currentTaskID = 0;
+        inputList.forEach((task) => {
+            // If this isn't the first task, add a break between tasks
+            // This break will have the same task ID as the subsequent task
+            if(currentTaskID !== 0) {   
+                schedule.tasks.push({
+                    name: "Break",
+                    duration: this.state.betweenTaskBreakLength,
+                    urgency: 0,
+                    id: currentTaskID,
+                    status: "pending"
+                });
+            }
+
+            if(task.breaks === true && task.duration > this.state.breakFreq) {
+                // Push back the max duration for part of the task
+                schedule.tasks.push({
+                    name: task.name,
+                    duration: this.state.breakFreq,
+                    urgency: task.urgency,
+                    id: currentTaskID,
+                    status: "pending"
+                });
+                // Update the remaining task duration
+                task.duration -= this.state.breakFreq;
+                // Push back a break
+                schedule.tasks.push({
+                    name: "Mid-Task Break",
+                    duration: this.state.midTaskBreakLength,
+                    urgency: task.urgency,
+                    id: currentTaskID,
+                    status: "pending"
+                });
+            }
+
+            // Push back the task
+            schedule.tasks.push({
+                name: task.name,
+                duration: task.duration,
+                urgency: task.urgency,
+                id: currentTaskID,
+                status: "pending"
+            });
+
+            currentTaskID++;
+        });
+
+        console.log(schedule);        
 
         this.props.makeSchedule(schedule);
     }
