@@ -1,5 +1,7 @@
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
@@ -48,25 +50,31 @@ var ScheduleBuilder = function (_React$Component2) {
         var _this2 = _possibleConstructorReturn(this, (ScheduleBuilder.__proto__ || Object.getPrototypeOf(ScheduleBuilder)).call(this, props));
 
         _this2.state = {
-            numTasks: 1
+            numTasks: 1,
+            tasks: [ScheduleBuilder.createTask()]
         };
 
         _this2.addTask = _this2.addTask.bind(_this2);
         _this2.reset = _this2.reset.bind(_this2);
-        _this2.makeSchedule = _this2.makeSchedule.bind(_this2);
+        _this2.processSchedule = _this2.processSchedule.bind(_this2);
+        _this2.handleChange = _this2.handleChange.bind(_this2);
         return _this2;
     }
 
-    // Adds a new task input to the form
+    // Creates a new task object for the state to hold
 
 
     _createClass(ScheduleBuilder, [{
         key: "addTask",
+
+
+        // Adds a new task input to the form
         value: function addTask(event) {
             event.preventDefault();
             this.setState(function (state) {
                 return {
-                    numTasks: state.numTasks + 1
+                    numTasks: state.numTasks + 1,
+                    tasks: [].concat(_toConsumableArray(state.tasks), [ScheduleBuilder.createTask()])
                 };
             });
         }
@@ -81,12 +89,50 @@ var ScheduleBuilder = function (_React$Component2) {
             });
         }
 
-        // Processes 
+        // Process the schedule and pass schedule to the container component
 
     }, {
-        key: "makeSchedule",
-        value: function makeSchedule(event) {
+        key: "processSchedule",
+        value: function processSchedule(event) {
             event.preventDefault();
+
+            var schedule = {};
+
+            this.props.makeSchedule(schedule);
+        }
+
+        // Form's calls this onKeyPress to prevent entry key from submitting form
+
+    }, {
+        key: "preventEnterKeySubmit",
+        value: function preventEnterKeySubmit(event) {
+            // 13 is enter key
+            if (event.which === 13) {
+                event.preventDefault();
+            }
+        }
+
+        // Updates state for form value change
+
+    }, {
+        key: "handleChange",
+        value: function handleChange(event) {
+            var id = event.target.id;
+            var value = event.target.value;
+
+            // Get input type
+            var input_type = id.split('-')[0];
+            // Get the numeric id
+            var id_num = id.split('-')[1];
+
+            // Update the value
+            // This forces the state to update and re-render
+            if (input_type === "breaks") {
+                this.state.tasks[id_num][input_type] = !this.state.tasks[id_num][input_type];
+            } else {
+                this.state.tasks[id_num][input_type] = value;
+            }
+            this.forceUpdate();
         }
     }, {
         key: "render",
@@ -100,25 +146,25 @@ var ScheduleBuilder = function (_React$Component2) {
                     React.createElement(
                         "td",
                         null,
-                        React.createElement("input", { type: "text", id: "" })
+                        React.createElement("input", { type: "text", id: "name-" + i, value: this.state.tasks[i].name, onChange: this.handleChange })
                     ),
                     React.createElement(
                         "td",
                         null,
-                        React.createElement("input", { type: "number", id: "", min: "0", max: "100" }),
+                        React.createElement("input", { type: "number", id: "hrs-" + i, min: "0", max: "100", value: this.state.tasks[i].hrs, onChange: this.handleChange }),
                         React.createElement(
                             "b",
                             null,
                             ":"
                         ),
-                        React.createElement("input", { type: "number", id: "", min: "0", max: "100" })
+                        React.createElement("input", { type: "number", id: "mins-" + i, min: "0", max: "100", value: this.state.tasks[i].mins, onChange: this.handleChange })
                     ),
                     React.createElement(
                         "td",
                         null,
                         React.createElement(
                             "select",
-                            { id: "" },
+                            { id: "urgency-" + i, value: this.state.tasks[i].urgency, onChange: this.handleChange },
                             React.createElement(
                                 "option",
                                 { value: "1" },
@@ -139,7 +185,7 @@ var ScheduleBuilder = function (_React$Component2) {
                     React.createElement(
                         "td",
                         null,
-                        React.createElement("input", { type: "checkbox", id: "" })
+                        React.createElement("input", { type: "checkbox", id: "breaks-" + i, checked: this.state.tasks[i].breaks, onChange: this.handleChange })
                     )
                 ));
             };
@@ -154,7 +200,7 @@ var ScheduleBuilder = function (_React$Component2) {
                 ),
                 React.createElement(
                     "form",
-                    null,
+                    { onKeyPress: this.preventEnterKeySubmit },
                     React.createElement(
                         "table",
                         null,
@@ -233,7 +279,7 @@ var ScheduleBuilder = function (_React$Component2) {
                                 null,
                                 React.createElement(
                                     "button",
-                                    { type: "submit", onClick: this.makeSchedule },
+                                    { onClick: this.processSchedule },
                                     "Start Schedule"
                                 )
                             )
@@ -248,6 +294,19 @@ var ScheduleBuilder = function (_React$Component2) {
                     )
                 )
             );
+        }
+    }], [{
+        key: "createTask",
+        value: function createTask() {
+            var task = {
+                name: "New Task",
+                hrs: 1,
+                mins: 0,
+                urgency: 1,
+                breaks: true
+            };
+
+            return task;
         }
     }]);
 
@@ -268,10 +327,12 @@ var AutoScheduler = function (_React$Component3) {
 
         _this3.state = {
             scheduleExists: false,
+            schedule: {},
             currentScreen: "HomeScreen"
         };
 
         _this3.openScheduleBuilder = _this3.openScheduleBuilder.bind(_this3);
+        _this3.makeSchedule = _this3.makeSchedule.bind(_this3);
         return _this3;
     }
 
@@ -286,6 +347,13 @@ var AutoScheduler = function (_React$Component3) {
                 currentScreen: "ScheduleBuilder"
             });
         }
+
+        // Adds the schedule to this componenets state
+        // Prepares the scheduleDisplay component
+
+    }, {
+        key: "makeSchedule",
+        value: function makeSchedule(schedule) {}
     }, {
         key: "render",
         value: function render() {
@@ -296,7 +364,9 @@ var AutoScheduler = function (_React$Component3) {
                     exists: this.state.scheduleExists,
                     createSchedule: this.openScheduleBuilder
                 }),
-                this.state.currentScreen === "ScheduleBuilder" && React.createElement(ScheduleBuilder, null)
+                this.state.currentScreen === "ScheduleBuilder" && React.createElement(ScheduleBuilder, {
+                    makeSchedule: this.makeSchedule
+                })
             );
         }
     }]);
