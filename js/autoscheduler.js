@@ -52,6 +52,8 @@ var ScheduleBuilder = function (_React$Component2) {
         };
 
         _this2.addTask = _this2.addTask.bind(_this2);
+        _this2.reset = _this2.reset.bind(_this2);
+        _this2.makeSchedule = _this2.makeSchedule.bind(_this2);
         return _this2;
     }
 
@@ -67,6 +69,24 @@ var ScheduleBuilder = function (_React$Component2) {
                     numTasks: state.numTasks + 1
                 };
             });
+        }
+
+        // Reset the schedule builder
+
+    }, {
+        key: "reset",
+        value: function reset() {
+            this.setState({
+                numTasks: 1
+            });
+        }
+
+        // Processes 
+
+    }, {
+        key: "makeSchedule",
+        value: function makeSchedule(event) {
+            event.preventDefault();
         }
     }, {
         key: "render",
@@ -189,8 +209,15 @@ var ScheduleBuilder = function (_React$Component2) {
                         React.createElement(
                             "tr",
                             null,
-                            React.createElement("td", null),
-                            React.createElement("td", null),
+                            React.createElement(
+                                "td",
+                                null,
+                                React.createElement(
+                                    "button",
+                                    { type: "reset", onClick: this.reset },
+                                    "Reset Schedule"
+                                )
+                            ),
                             React.createElement("td", null),
                             React.createElement(
                                 "td",
@@ -200,8 +227,24 @@ var ScheduleBuilder = function (_React$Component2) {
                                     { onClick: this.addTask },
                                     "Add Another Task"
                                 )
+                            ),
+                            React.createElement(
+                                "td",
+                                null,
+                                React.createElement(
+                                    "button",
+                                    { type: "submit", onClick: this.makeSchedule },
+                                    "Start Schedule"
+                                )
                             )
                         )
+                    ),
+                    React.createElement("br", null),
+                    React.createElement("br", null),
+                    React.createElement(
+                        "h2",
+                        null,
+                        "Settings"
                     )
                 )
             );
@@ -228,7 +271,7 @@ var AutoScheduler = function (_React$Component3) {
             currentScreen: "HomeScreen"
         };
 
-        _this3.createSchedule = _this3.createSchedule.bind(_this3);
+        _this3.openScheduleBuilder = _this3.openScheduleBuilder.bind(_this3);
         return _this3;
     }
 
@@ -237,8 +280,8 @@ var AutoScheduler = function (_React$Component3) {
 
 
     _createClass(AutoScheduler, [{
-        key: "createSchedule",
-        value: function createSchedule() {
+        key: "openScheduleBuilder",
+        value: function openScheduleBuilder() {
             this.setState({
                 currentScreen: "ScheduleBuilder"
             });
@@ -251,9 +294,9 @@ var AutoScheduler = function (_React$Component3) {
                 { id: "container" },
                 this.state.currentScreen === "HomeScreen" && React.createElement(HomeScreen, {
                     exists: this.state.scheduleExists,
-                    createSchedule: this.createSchedule
+                    createSchedule: this.openScheduleBuilder
                 }),
-                this.state.currentScreen == "ScheduleBuilder" && React.createElement(ScheduleBuilder, null)
+                this.state.currentScreen === "ScheduleBuilder" && React.createElement(ScheduleBuilder, null)
             );
         }
     }]);

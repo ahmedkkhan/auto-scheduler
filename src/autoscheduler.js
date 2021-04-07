@@ -23,6 +23,8 @@ class ScheduleBuilder extends React.Component {
         };
 
         this.addTask = this.addTask.bind(this);
+        this.reset = this.reset.bind(this);
+        this.makeSchedule = this.makeSchedule.bind(this);
     }
 
     // Adds a new task input to the form
@@ -31,6 +33,18 @@ class ScheduleBuilder extends React.Component {
         this.setState((state) => ({
             numTasks: state.numTasks + 1
         }))
+    }
+
+    // Reset the schedule builder
+    reset() {
+        this.setState({
+            numTasks: 1
+        });
+    }
+
+    // Processes 
+    makeSchedule(event) {
+        event.preventDefault();
     }
 
     render() {
@@ -73,12 +87,14 @@ class ScheduleBuilder extends React.Component {
                         }) }
                         <tr><br/></tr>
                         <tr>
-                            <td></td>
-                            <td></td>
+                            <td><button type="reset" onClick={this.reset}>Reset Schedule</button></td>
                             <td></td>
                             <td><button onClick={this.addTask}>Add Another Task</button></td>
+                            <td><button type="submit" onClick={this.makeSchedule}>Start Schedule</button></td>
                         </tr>
                     </table>
+                    <br/><br/>
+                    <h2>Settings</h2>
                 </form>
             </div>
         );
@@ -96,12 +112,12 @@ class AutoScheduler extends React.Component {
             currentScreen: "HomeScreen",
         };
 
-        this.createSchedule = this.createSchedule.bind(this);
+        this.openScheduleBuilder = this.openScheduleBuilder.bind(this);
     }
 
     // Remove this module from the DOM 
     // Load the schedule builder component
-    createSchedule() {
+    openScheduleBuilder() {
         this.setState({
             currentScreen: "ScheduleBuilder"
         });
@@ -112,10 +128,10 @@ class AutoScheduler extends React.Component {
             <div id="container">
                 { this.state.currentScreen === "HomeScreen" && <HomeScreen 
                     exists={this.state.scheduleExists}
-                    createSchedule={this.createSchedule}
+                    createSchedule={this.openScheduleBuilder}
                 /> }
 
-                { this.state.currentScreen == "ScheduleBuilder" && <ScheduleBuilder /> }
+                { this.state.currentScreen === "ScheduleBuilder" && <ScheduleBuilder /> }
             </div>
         );
     }
