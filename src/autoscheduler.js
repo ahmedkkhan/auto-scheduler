@@ -6,7 +6,7 @@ class HomeScreen extends React.Component {
     render() {
         return (
             <div id="homeScreen">
-                <button onClick={this.props.createSchedule}>Create Schedule</button>
+                <button class="btn btn-primary btn-lg btn-block" onClick={this.props.createSchedule}>Create Schedule</button>
                 <br />
                 { this.props.exists && <button onClick={this.props.resumeHandler}>Resume Schedule</button> }
             </div>
@@ -223,22 +223,27 @@ class ScheduleBuilder extends React.Component {
         let rows = [];
         for(let i = 0; i < this.state.numTasks; ++i) {
             rows.push(
-                <tr>
-                    <td><input type="text" id={"name-" + i} value={this.state.tasks[i].name} onChange={this.handleChange}></input></td>
-                    <td>
-                        <input type="number" id={"hrs-" + i} min="0" max="100" value={this.state.tasks[i].hrs} onChange={this.handleChange}></input>
-                        <b>:</b>
-                        <input type="number" id={"mins-" + i} min="0" max="100" value={this.state.tasks[i].mins} onChange={this.handleChange}></input>
-                    </td>
-                    <td>
-                        <select id={"urgency-" + i} value={this.state.tasks[i].urgency} onChange={this.handleChange}>
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <input type="text" class="form-control" id={"name-" + i} value={this.state.tasks[i].name} onChange={this.handleChange}></input>
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="number" class="form-control" id={"hrs-" + i} min="0" max="100" value={this.state.tasks[i].hrs} onChange={this.handleChange}></input>                        
+                    </div>
+                    <div class="form-group col-md-2">
+                        <input type="number" class="form-control" id={"mins-" + i} min="0" max="100" value={this.state.tasks[i].mins} onChange={this.handleChange}></input>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <select class="form-control" id={"urgency-" + i} value={this.state.tasks[i].urgency} onChange={this.handleChange}>
                             <option value="1">Very Urgent</option>
                             <option value="2">Somewhat Urgent</option>
                             <option value="3">Not Urgent</option>
                         </select>
-                    </td>
-                    <td><input type="checkbox" id={"breaks-" + i} checked={this.state.tasks[i].breaks} onChange={this.handleChange}></input></td> 
-                </tr>
+                    </div>
+                    <div class="custom-control custom-checkbox col-md-2">
+                        <input class="custom-control-label" value="" type="checkbox" id={"breaks-" + i} checked={this.state.tasks[i].breaks} onChange={this.handleChange}></input>
+                    </div>
+                </div>
             );
         };
 
@@ -247,43 +252,44 @@ class ScheduleBuilder extends React.Component {
                 <h2>Schedule Builder</h2>
                 <form onKeyPress={this.preventEnterKeySubmit}>
                     <table>
-                        <tr>
-                            <td><b>Task Name</b></td>
-                            <td><b>Duration (hrs:mins)</b></td>
-                            <td><b>Urgency</b></td>
-                            <td><b>Add Breaks</b></td>
-                        </tr>
+                        <div class="form-row">
+                            <div class="form-group col-md-3">Task Name</div>
+                            <div class="form-group col-md-2">Hours</div>
+                            <div class="form-group col-md-2">Minutes</div>
+                            <div class="form-group col-md-3">Urgency</div>
+                            <div class="form-group col-md-2">Add Break</div>
+                        </div>
                         { rows.map((value, index) => {
                             return value;
                         }) }
-                        <tr><br/></tr>
-                        <tr>
-                            <td><button type="reset" onClick={this.reset}>Reset Schedule</button></td>
+                        <div class="form-row"><br/></div>
+                        <div class="form-row">
+                            <td><button class="btn btn-primary" onClick={this.addTask}>Add Another Task</button></td>
                             <td></td>
-                            <td><button onClick={this.addTask}>Add Another Task</button></td>
-                            <td><button onClick={this.processSchedule}>Start Schedule</button></td>
-                        </tr>
+                            <td><button class="btn btn-danger" type="reset" onClick={this.reset}>Reset Schedule</button></td>
+                            <td><button class="btn btn-success" onClick={this.processSchedule}>Start Schedule</button></td>
+                        </div>
                         
                     </table>
                     <br/><br/>
                     <h2>Settings</h2>
                     <table>
-                        <tr>
+                        <div class="form-row">
                             <td><b>Mid-task break duration (mins):</b></td>
                             <td><input type="number" id="settings-mtb" value={this.state.midTaskBreakLength / 60} min="0" onChange={this.updateSettings}></input></td>
-                        </tr>
-                        <tr>
+                        </div>
+                        <div class="form-row">
                             <td><b>Between-task break duration (mins):</b></td>
                             <td><input type="number" id="settings-btb" value={this.state.betweenTaskBreakLength / 60} min="0" onChange={this.updateSettings}></input></td>
-                        </tr>
-                        <tr>
+                        </div>
+                        <div class="form-row">
                             <td><b>Time before mid-task breaks (hrs:mins):</b></td>
                             <td>
                                 <input type="number" id="settings-freq-hrs" min="0" max="100" value={this.state.breakFreqHours} onChange={this.updateSettings}></input>
                                 <b>:</b>
                                 <input type="number" id="settings-freq-mins" min="0" max="100" value={this.state.breakFreqMins} onChange={this.updateSettings}></input>
                             </td>
-                        </tr>
+                        </div>
                     </table>
                 </form>
             </div>

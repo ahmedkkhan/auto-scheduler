@@ -25,7 +25,7 @@ var HomeScreen = function (_React$Component) {
                 { id: "homeScreen" },
                 React.createElement(
                     "button",
-                    { onClick: this.props.createSchedule },
+                    { "class": "btn btn-primary btn-lg btn-block", onClick: this.props.createSchedule },
                     "Create Schedule"
                 ),
                 React.createElement("br", null),
@@ -264,30 +264,29 @@ var ScheduleBuilder = function (_React$Component2) {
             var rows = [];
             for (var i = 0; i < this.state.numTasks; ++i) {
                 rows.push(React.createElement(
-                    "tr",
-                    null,
+                    "div",
+                    { "class": "form-row" },
                     React.createElement(
-                        "td",
-                        null,
-                        React.createElement("input", { type: "text", id: "name-" + i, value: this.state.tasks[i].name, onChange: this.handleChange })
+                        "div",
+                        { "class": "form-group col-md-3" },
+                        React.createElement("input", { type: "text", "class": "form-control", id: "name-" + i, value: this.state.tasks[i].name, onChange: this.handleChange })
                     ),
                     React.createElement(
-                        "td",
-                        null,
-                        React.createElement("input", { type: "number", id: "hrs-" + i, min: "0", max: "100", value: this.state.tasks[i].hrs, onChange: this.handleChange }),
-                        React.createElement(
-                            "b",
-                            null,
-                            ":"
-                        ),
-                        React.createElement("input", { type: "number", id: "mins-" + i, min: "0", max: "100", value: this.state.tasks[i].mins, onChange: this.handleChange })
+                        "div",
+                        { "class": "form-group col-md-2" },
+                        React.createElement("input", { type: "number", "class": "form-control", id: "hrs-" + i, min: "0", max: "100", value: this.state.tasks[i].hrs, onChange: this.handleChange })
                     ),
                     React.createElement(
-                        "td",
-                        null,
+                        "div",
+                        { "class": "form-group col-md-2" },
+                        React.createElement("input", { type: "number", "class": "form-control", id: "mins-" + i, min: "0", max: "100", value: this.state.tasks[i].mins, onChange: this.handleChange })
+                    ),
+                    React.createElement(
+                        "div",
+                        { "class": "form-group col-md-3" },
                         React.createElement(
                             "select",
-                            { id: "urgency-" + i, value: this.state.tasks[i].urgency, onChange: this.handleChange },
+                            { "class": "form-control", id: "urgency-" + i, value: this.state.tasks[i].urgency, onChange: this.handleChange },
                             React.createElement(
                                 "option",
                                 { value: "1" },
@@ -306,9 +305,9 @@ var ScheduleBuilder = function (_React$Component2) {
                         )
                     ),
                     React.createElement(
-                        "td",
-                        null,
-                        React.createElement("input", { type: "checkbox", id: "breaks-" + i, checked: this.state.tasks[i].breaks, onChange: this.handleChange })
+                        "div",
+                        { "class": "custom-control custom-checkbox col-md-2" },
+                        React.createElement("input", { "class": "custom-control-label", value: "", type: "checkbox", id: "breaks-" + i, checked: this.state.tasks[i].breaks, onChange: this.handleChange })
                     )
                 ));
             };
@@ -328,63 +327,52 @@ var ScheduleBuilder = function (_React$Component2) {
                         "table",
                         null,
                         React.createElement(
-                            "tr",
-                            null,
+                            "div",
+                            { "class": "form-row" },
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement(
-                                    "b",
-                                    null,
-                                    "Task Name"
-                                )
+                                "div",
+                                { "class": "form-group col-md-3" },
+                                "Task Name"
                             ),
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement(
-                                    "b",
-                                    null,
-                                    "Duration (hrs:mins)"
-                                )
+                                "div",
+                                { "class": "form-group col-md-2" },
+                                "Hours"
                             ),
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement(
-                                    "b",
-                                    null,
-                                    "Urgency"
-                                )
+                                "div",
+                                { "class": "form-group col-md-2" },
+                                "Minutes"
                             ),
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement(
-                                    "b",
-                                    null,
-                                    "Add Breaks"
-                                )
+                                "div",
+                                { "class": "form-group col-md-3" },
+                                "Urgency"
+                            ),
+                            React.createElement(
+                                "div",
+                                { "class": "form-group col-md-2" },
+                                "Add Break"
                             )
                         ),
                         rows.map(function (value, index) {
                             return value;
                         }),
                         React.createElement(
-                            "tr",
-                            null,
+                            "div",
+                            { "class": "form-row" },
                             React.createElement("br", null)
                         ),
                         React.createElement(
-                            "tr",
-                            null,
+                            "div",
+                            { "class": "form-row" },
                             React.createElement(
                                 "td",
                                 null,
                                 React.createElement(
                                     "button",
-                                    { type: "reset", onClick: this.reset },
-                                    "Reset Schedule"
+                                    { "class": "btn btn-primary", onClick: this.addTask },
+                                    "Add Another Task"
                                 )
                             ),
                             React.createElement("td", null),
@@ -393,8 +381,8 @@ var ScheduleBuilder = function (_React$Component2) {
                                 null,
                                 React.createElement(
                                     "button",
-                                    { onClick: this.addTask },
-                                    "Add Another Task"
+                                    { "class": "btn btn-danger", type: "reset", onClick: this.reset },
+                                    "Reset Schedule"
                                 )
                             ),
                             React.createElement(
@@ -402,7 +390,7 @@ var ScheduleBuilder = function (_React$Component2) {
                                 null,
                                 React.createElement(
                                     "button",
-                                    { onClick: this.processSchedule },
+                                    { "class": "btn btn-success", onClick: this.processSchedule },
                                     "Start Schedule"
                                 )
                             )
@@ -419,8 +407,8 @@ var ScheduleBuilder = function (_React$Component2) {
                         "table",
                         null,
                         React.createElement(
-                            "tr",
-                            null,
+                            "div",
+                            { "class": "form-row" },
                             React.createElement(
                                 "td",
                                 null,
@@ -437,8 +425,8 @@ var ScheduleBuilder = function (_React$Component2) {
                             )
                         ),
                         React.createElement(
-                            "tr",
-                            null,
+                            "div",
+                            { "class": "form-row" },
                             React.createElement(
                                 "td",
                                 null,
@@ -455,8 +443,8 @@ var ScheduleBuilder = function (_React$Component2) {
                             )
                         ),
                         React.createElement(
-                            "tr",
-                            null,
+                            "div",
+                            { "class": "form-row" },
                             React.createElement(
                                 "td",
                                 null,

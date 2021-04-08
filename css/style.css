@@ -1,58 +1,31 @@
-body {
-    margin: 0; /*makes background color go all the way to edges */
-    font-family: Helvetica, sans-serif;
+.jumbotron {
     text-align: center;
 }
 
-/* home screen create schedule button */
-/* i didnt pick this name */
 #homeScreen {
-    margin-top: 100px;
     text-align: center;
+    width: 25%;
+    margin:auto;
 }
 
-button {
-    background-color: #98ff98;
-    border: none;
-    color: #f7fcfe;
-    font-size: 20px;
-    border-radius: 5px;
-    left: 50%;
-}
-
-button:hover {
-    background-color: lightgrey;
-    cursor: pointer;
-}
-
-table {
-    margin-left: auto;
-    margin-right: auto;
-    border: 2px solid #98ff98;
-    border-radius: 5px;
-    border-spacing: 20px;
-}
-
-#title {
+#homeScreen button {
     text-align: center;
-    background-color: #98ff98;
-    padding: 30px;
-    margin: 0px;
-    color: #f7fcfe;
-}
-
-input, select {
-    border: 1px solid #98ff98;
-}
-
-input[type=checkbox] {
-    background: blue;
-}
-
-#container {
-
 }
 
 #scheduleBuilder {
-    
+    text-align: center;
+    margin:auto;
+}
+
+table {
+    text-align: center;
+    margin: auto;
+}
+
+.custom-checkbox {
+    margin-top: 5px;
+}
+
+.btn {
+    margin-right: 10px;
 }
