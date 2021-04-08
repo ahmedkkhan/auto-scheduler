@@ -56,13 +56,17 @@ var ScheduleBuilder = function (_React$Component2) {
             tasks: [ScheduleBuilder.createTask()],
             midTaskBreakLength: 600,
             betweenTaskBreakLength: 900,
-            breakFreq: 3600
+            breakFreqHours: 1,
+            breakFreqMins: 0
         };
 
         _this2.addTask = _this2.addTask.bind(_this2);
         _this2.reset = _this2.reset.bind(_this2);
         _this2.processSchedule = _this2.processSchedule.bind(_this2);
+
+        // Form input handlers
         _this2.handleChange = _this2.handleChange.bind(_this2);
+        _this2.updateSettings = _this2.updateSettings.bind(_this2);
         return _this2;
     }
 
@@ -134,12 +138,21 @@ var ScheduleBuilder = function (_React$Component2) {
                 }
             });
 
+            // Compute the break frequency in seconds
+            var breakFreq = this.state.breakFreqHours * 3600 + this.state.breakFreqMins * 60;
+
             // Create the schedule data structure
             var currentTaskID = 0;
             inputList.forEach(function (task) {
+                // Skip tasks with no duration
+                if (task.duration === 0) {
+                    return;
+                }
+
                 // If this isn't the first task, add a break between tasks
                 // This break will have the same task ID as the subsequent task
-                if (currentTaskID !== 0) {
+                // If the user specified 0 as the between-task break length, do nothing
+                if (currentTaskID !== 0 && _this3.state.betweenTaskBreakLength !== 0) {
                     schedule.tasks.push({
                         name: "Break",
                         duration: _this3.state.betweenTaskBreakLength,
@@ -149,17 +162,19 @@ var ScheduleBuilder = function (_React$Component2) {
                     });
                 }
 
-                if (task.breaks === true && task.duration > _this3.state.breakFreq) {
+                // Split tasks that are too long
+                // Don't split tasks if the user specified a mid-task break length of 0
+                while (task.breaks === true && task.duration > breakFreq && _this3.state.midTaskBreakLength !== 0) {
                     // Push back the max duration for part of the task
                     schedule.tasks.push({
                         name: task.name,
-                        duration: _this3.state.breakFreq,
+                        duration: breakFreq,
                         urgency: task.urgency,
                         id: currentTaskID,
                         status: "pending"
                     });
                     // Update the remaining task duration
-                    task.duration -= _this3.state.breakFreq;
+                    task.duration -= breakFreq;
                     // Push back a break
                     schedule.tasks.push({
                         name: "Mid-Task Break",
@@ -195,6 +210,28 @@ var ScheduleBuilder = function (_React$Component2) {
             // 13 is enter key
             if (event.which === 13) {
                 event.preventDefault();
+            }
+        }
+    }, {
+        key: "updateSettings",
+        value: function updateSettings(event) {
+            event.preventDefault();
+            if (event.target.id === "settings-mtb") {
+                this.setState({
+                    midTaskBreakLength: event.target.value * 60
+                });
+            } else if (event.target.id === "settings-btb") {
+                this.setState({
+                    betweenTaskBreakLength: event.target.value * 60
+                });
+            } else if (event.target.id === "settings-freq-hrs") {
+                this.setState({
+                    breakFreqHours: event.target.value
+                });
+            } else if (event.target.id === "settings-freq-mins") {
+                this.setState({
+                    breakFreqMins: event.target.value
+                });
             }
         }
 
@@ -377,6 +414,70 @@ var ScheduleBuilder = function (_React$Component2) {
                         "h2",
                         null,
                         "Settings"
+                    ),
+                    React.createElement(
+                        "table",
+                        null,
+                        React.createElement(
+                            "tr",
+                            null,
+                            React.createElement(
+                                "td",
+                                null,
+                                React.createElement(
+                                    "b",
+                                    null,
+                                    "Mid-task break duration (mins):"
+                                )
+                            ),
+                            React.createElement(
+                                "td",
+                                null,
+                                React.createElement("input", { type: "number", id: "settings-mtb", value: this.state.midTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
+                            )
+                        ),
+                        React.createElement(
+                            "tr",
+                            null,
+                            React.createElement(
+                                "td",
+                                null,
+                                React.createElement(
+                                    "b",
+                                    null,
+                                    "Between-task break duration (mins):"
+                                )
+                            ),
+                            React.createElement(
+                                "td",
+                                null,
+                                React.createElement("input", { type: "number", id: "settings-btb", value: this.state.betweenTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
+                            )
+                        ),
+                        React.createElement(
+                            "tr",
+                            null,
+                            React.createElement(
+                                "td",
+                                null,
+                                React.createElement(
+                                    "b",
+                                    null,
+                                    "Time before mid-task breaks (hrs:mins):"
+                                )
+                            ),
+                            React.createElement(
+                                "td",
+                                null,
+                                React.createElement("input", { type: "number", id: "settings-freq-hrs", min: "0", max: "100", value: this.state.breakFreqHours, onChange: this.updateSettings }),
+                                React.createElement(
+                                    "b",
+                                    null,
+                                    ":"
+                                ),
+                                React.createElement("input", { type: "number", id: "settings-freq-mins", min: "0", max: "100", value: this.state.breakFreqMins, onChange: this.updateSettings })
+                            )
+                        )
                     )
                 )
             );
@@ -399,27 +500,52 @@ var ScheduleBuilder = function (_React$Component2) {
     return ScheduleBuilder;
 }(React.Component);
 
+var ScheduleDisplay = function (_React$Component3) {
+    _inherits(ScheduleDisplay, _React$Component3);
+
+    function ScheduleDisplay(props) {
+        _classCallCheck(this, ScheduleDisplay);
+
+        // Deep copy the schedule into this components state
+        var _this4 = _possibleConstructorReturn(this, (ScheduleDisplay.__proto__ || Object.getPrototypeOf(ScheduleDisplay)).call(this, props));
+
+        _this4.state = {
+            schedule: JSON.parse(JSON.stringify(_this4.props.schedule))
+        };
+        return _this4;
+    }
+
+    _createClass(ScheduleDisplay, [{
+        key: "render",
+        value: function render() {
+            return null;
+        }
+    }]);
+
+    return ScheduleDisplay;
+}(React.Component);
+
 // parent react component
 // contains the state of the scheduler and renders the components
 
 
-var AutoScheduler = function (_React$Component3) {
-    _inherits(AutoScheduler, _React$Component3);
+var AutoScheduler = function (_React$Component4) {
+    _inherits(AutoScheduler, _React$Component4);
 
     function AutoScheduler(props) {
         _classCallCheck(this, AutoScheduler);
 
-        var _this4 = _possibleConstructorReturn(this, (AutoScheduler.__proto__ || Object.getPrototypeOf(AutoScheduler)).call(this, props));
+        var _this5 = _possibleConstructorReturn(this, (AutoScheduler.__proto__ || Object.getPrototypeOf(AutoScheduler)).call(this, props));
 
-        _this4.state = {
+        _this5.state = {
             scheduleExists: false,
             schedule: {},
             currentScreen: "HomeScreen"
         };
 
-        _this4.openScheduleBuilder = _this4.openScheduleBuilder.bind(_this4);
-        _this4.makeSchedule = _this4.makeSchedule.bind(_this4);
-        return _this4;
+        _this5.openScheduleBuilder = _this5.openScheduleBuilder.bind(_this5);
+        _this5.makeSchedule = _this5.makeSchedule.bind(_this5);
+        return _this5;
     }
 
     // Remove this module from the DOM 
@@ -439,7 +565,12 @@ var AutoScheduler = function (_React$Component3) {
 
     }, {
         key: "makeSchedule",
-        value: function makeSchedule(schedule) {}
+        value: function makeSchedule(schedule) {
+            this.setState({
+                schedule: schedule,
+                currentScreen: "ScheduleDisplay"
+            });
+        }
     }, {
         key: "render",
         value: function render() {
@@ -452,6 +583,9 @@ var AutoScheduler = function (_React$Component3) {
                 }),
                 this.state.currentScreen === "ScheduleBuilder" && React.createElement(ScheduleBuilder, {
                     makeSchedule: this.makeSchedule
+                }),
+                this.state.currentScreen === "ScheduleDisplay" && React.createElement(ScheduleDisplay, {
+                    schedule: this.state.schedule
                 })
             );
         }
