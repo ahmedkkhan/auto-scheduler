@@ -316,7 +316,7 @@ var ScheduleBuilder = function (_React$Component2) {
                 "div",
                 { id: "scheduleBuilder" },
                 React.createElement(
-                    "h2",
+                    "h3",
                     null,
                     "Schedule Builder"
                 ),
@@ -336,13 +336,8 @@ var ScheduleBuilder = function (_React$Component2) {
                             ),
                             React.createElement(
                                 "div",
-                                { "class": "form-group col-md-2" },
-                                "Hours"
-                            ),
-                            React.createElement(
-                                "div",
-                                { "class": "form-group col-md-2" },
-                                "Minutes"
+                                { "class": "form-group col-md-4" },
+                                "Duration (hours : mins)"
                             ),
                             React.createElement(
                                 "div",
@@ -367,39 +362,27 @@ var ScheduleBuilder = function (_React$Component2) {
                             "div",
                             { "class": "form-row" },
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement(
-                                    "button",
-                                    { "class": "btn btn-primary", onClick: this.addTask },
-                                    "Add Another Task"
-                                )
+                                "button",
+                                { "class": "btn btn-primary form-group col-md-3", onClick: this.addTask },
+                                "Add Another Task"
                             ),
-                            React.createElement("td", null),
+                            React.createElement("div", { "class": "form-group col-md-2" }),
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement(
-                                    "button",
-                                    { "class": "btn btn-danger", type: "reset", onClick: this.reset },
-                                    "Reset Schedule"
-                                )
+                                "button",
+                                { "class": "btn btn-danger form-group col-md-3", type: "reset", onClick: this.reset },
+                                "Reset Schedule"
                             ),
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement(
-                                    "button",
-                                    { "class": "btn btn-success", onClick: this.processSchedule },
-                                    "Start Schedule"
-                                )
+                                "button",
+                                { "class": "btn btn-success form-group col-md-3", onClick: this.processSchedule },
+                                "Start Schedule"
                             )
                         )
                     ),
                     React.createElement("br", null),
                     React.createElement("br", null),
                     React.createElement(
-                        "h2",
+                        "h3",
                         null,
                         "Settings"
                     ),
@@ -412,11 +395,7 @@ var ScheduleBuilder = function (_React$Component2) {
                             React.createElement(
                                 "td",
                                 null,
-                                React.createElement(
-                                    "b",
-                                    null,
-                                    "Mid-task break duration (mins):"
-                                )
+                                "Mid-task break duration (mins):"
                             ),
                             React.createElement(
                                 "td",
@@ -430,11 +409,7 @@ var ScheduleBuilder = function (_React$Component2) {
                             React.createElement(
                                 "td",
                                 null,
-                                React.createElement(
-                                    "b",
-                                    null,
-                                    "Between-task break duration (mins):"
-                                )
+                                "Between-task break duration (mins):"
                             ),
                             React.createElement(
                                 "td",
@@ -448,11 +423,7 @@ var ScheduleBuilder = function (_React$Component2) {
                             React.createElement(
                                 "td",
                                 null,
-                                React.createElement(
-                                    "b",
-                                    null,
-                                    "Time before mid-task breaks (hrs:mins):"
-                                )
+                                "Time before mid-task breaks (hours : mins):"
                             ),
                             React.createElement(
                                 "td",
@@ -500,13 +471,79 @@ var ScheduleDisplay = function (_React$Component3) {
         _this4.state = {
             schedule: JSON.parse(JSON.stringify(_this4.props.schedule))
         };
+
+        // Initalize the schedule to start immediately
+        // Set the first task to ongoing
+        _this4.state.schedule.tasks[0].status = "ongoing";
         return _this4;
     }
 
     _createClass(ScheduleDisplay, [{
         key: "render",
         value: function render() {
-            return null;
+            return React.createElement(
+                "div",
+                { id: "scheduleDisplay" },
+                React.createElement(
+                    "h3",
+                    null,
+                    "Schedule"
+                ),
+                React.createElement(
+                    "table",
+                    { "class": "table" },
+                    React.createElement(
+                        "thead",
+                        null,
+                        React.createElement(
+                            "tr",
+                            { "class": "schedule-row" },
+                            React.createElement(
+                                "th",
+                                { scope: "col" },
+                                "Task Name"
+                            ),
+                            React.createElement(
+                                "th",
+                                { scope: "col" },
+                                "Duration (Hours : Mins)"
+                            )
+                        )
+                    ),
+                    React.createElement(
+                        "tbody",
+                        null,
+                        this.state.schedule.tasks.map(function (value, index) {
+                            var classText = "";
+                            if (value.status === "ongoing") {
+                                classText = "table-primary";
+                            } else if (value.status === "completed") {
+                                classText = "table-success";
+                            } else {
+                                // "pending"
+                                classText = "table-warning";
+                            }
+
+                            return React.createElement(
+                                "tr",
+                                { "class": "schedule-row " + classText },
+                                React.createElement(
+                                    "td",
+                                    { scope: "col" },
+                                    value.name
+                                ),
+                                React.createElement(
+                                    "td",
+                                    { scope: "col" },
+                                    parseInt(value.duration / 3600),
+                                    ":",
+                                    parseInt(value.duration % 3600) / 60 >= 10 ? parseInt(value.duration % 3600) / 60 : "0" + parseInt(value.duration % 3600) / 60
+                                )
+                            );
+                        })
+                    )
+                )
+            );
         }
     }]);
 

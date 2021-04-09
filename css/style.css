@@ -17,6 +17,12 @@
     margin:auto;
 }
 
+#scheduleDisplay {
+    text-align: center;
+    margin:auto;
+    width: 50%;
+}
+
 table {
     text-align: center;
     margin: auto;
@@ -28,4 +34,8 @@ table {
 
 .btn {
     margin-right: 10px;
+}
+
+.schedule-row {
+    text-align: left;
 }

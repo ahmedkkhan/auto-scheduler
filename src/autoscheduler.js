@@ -249,13 +249,12 @@ class ScheduleBuilder extends React.Component {
 
         return (
             <div id="scheduleBuilder">
-                <h2>Schedule Builder</h2>
+                <h3>Schedule Builder</h3>
                 <form onKeyPress={this.preventEnterKeySubmit}>
                     <table>
                         <div class="form-row">
                             <div class="form-group col-md-3">Task Name</div>
-                            <div class="form-group col-md-2">Hours</div>
-                            <div class="form-group col-md-2">Minutes</div>
+                            <div class="form-group col-md-4">Duration (hours : mins)</div>
                             <div class="form-group col-md-3">Urgency</div>
                             <div class="form-group col-md-2">Add Break</div>
                         </div>
@@ -264,26 +263,26 @@ class ScheduleBuilder extends React.Component {
                         }) }
                         <div class="form-row"><br/></div>
                         <div class="form-row">
-                            <td><button class="btn btn-primary" onClick={this.addTask}>Add Another Task</button></td>
-                            <td></td>
-                            <td><button class="btn btn-danger" type="reset" onClick={this.reset}>Reset Schedule</button></td>
-                            <td><button class="btn btn-success" onClick={this.processSchedule}>Start Schedule</button></td>
+                            <button class="btn btn-primary form-group col-md-3" onClick={this.addTask}>Add Another Task</button>
+                            <div class="form-group col-md-2"></div>
+                            <button class="btn btn-danger form-group col-md-3" type="reset" onClick={this.reset}>Reset Schedule</button>
+                            <button class="btn btn-success form-group col-md-3" onClick={this.processSchedule}>Start Schedule</button>
                         </div>
                         
                     </table>
                     <br/><br/>
-                    <h2>Settings</h2>
+                    <h3>Settings</h3>
                     <table>
                         <div class="form-row">
-                            <td><b>Mid-task break duration (mins):</b></td>
+                            <td>Mid-task break duration (mins):</td>
                             <td><input type="number" id="settings-mtb" value={this.state.midTaskBreakLength / 60} min="0" onChange={this.updateSettings}></input></td>
                         </div>
                         <div class="form-row">
-                            <td><b>Between-task break duration (mins):</b></td>
+                            <td>Between-task break duration (mins):</td>
                             <td><input type="number" id="settings-btb" value={this.state.betweenTaskBreakLength / 60} min="0" onChange={this.updateSettings}></input></td>
                         </div>
                         <div class="form-row">
-                            <td><b>Time before mid-task breaks (hrs:mins):</b></td>
+                            <td>Time before mid-task breaks (hours : mins):</td>
                             <td>
                                 <input type="number" id="settings-freq-hrs" min="0" max="100" value={this.state.breakFreqHours} onChange={this.updateSettings}></input>
                                 <b>:</b>
@@ -305,11 +304,48 @@ class ScheduleDisplay extends React.Component {
         this.state = {
             schedule: JSON.parse(JSON.stringify(this.props.schedule))
         };
+
+        // Initalize the schedule to start immediately
+        // Set the first task to ongoing
+        this.state.schedule.tasks[0].status = "ongoing";
     }
 
     render() {
         return (
-            null
+            <div id="scheduleDisplay">
+                <h3>Schedule</h3>
+                <table class="table">
+                    <thead>
+                        <tr class="schedule-row">
+                            <th scope="col">Task Name</th>
+                            <th scope="col">Duration (Hours : Mins)</th>
+                        </tr>    
+                    </thead>
+                    <tbody>
+                        { this.state.schedule.tasks.map((value, index) => {
+                            let classText = "";
+                            if(value.status === "ongoing") {
+                                classText = "table-primary";
+                            } else if(value.status === "completed") {
+                                classText = "table-success";
+                            } else { // "pending"
+                                classText = "table-warning";
+                            }
+
+                            return (
+                                <tr class={`schedule-row ${classText}`}>
+                                    <td scope="col">{value.name}</td>
+                                    <td scope="col">
+                                        {parseInt(value.duration / 3600)}
+                                        :
+                                        {parseInt(value.duration % 3600) / 60 >= 10 ? parseInt(value.duration % 3600) / 60 : "0" + parseInt(value.duration % 3600) / 60}
+                                    </td>
+                                </tr>
+                            )
+                        })}
+                    </tbody>
+                </table>
+            </div>
         )
     }
 }
