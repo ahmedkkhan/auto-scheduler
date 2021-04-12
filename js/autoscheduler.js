@@ -111,7 +111,6 @@ var ScheduleBuilder = function (_React$Component2) {
             // User input data lives in the state
             // Use it to create an appropriate schedule
             var schedule = {
-                elapsedTime: 0,
                 tasks: []
             };
 
@@ -469,18 +468,67 @@ var ScheduleDisplay = function (_React$Component3) {
         var _this4 = _possibleConstructorReturn(this, (ScheduleDisplay.__proto__ || Object.getPrototypeOf(ScheduleDisplay)).call(this, props));
 
         _this4.state = {
+            elapsedTime: 0,
             schedule: JSON.parse(JSON.stringify(_this4.props.schedule))
         };
 
         // Initalize the schedule to start immediately
         // Set the first task to ongoing
         _this4.state.schedule.tasks[0].status = "ongoing";
+
+        _this4.updateTimer = _this4.updateTimer.bind(_this4);
+        _this4.checkTask = _this4.checkTask.bind(_this4);
+
+        // Update the timer every second
+        setInterval(_this4.updateTimer, 1000);
         return _this4;
     }
 
     _createClass(ScheduleDisplay, [{
+        key: "updateTimer",
+        value: function updateTimer() {
+            // Add a second to the elapsed time
+            this.setState(function (state) {
+                return {
+                    elapsedTime: state.elapsedTime + 1
+                };
+            });
+        }
+    }, {
+        key: "checkTask",
+        value: function checkTask() {
+            // only check each time a minute has elapsed (a task cannot be shorter)
+            if (this.state.duration % 60 == 0) {
+                // Loop until we find the ongoing task
+                var foundOngoing = false;
+                this.state.schedule.tasks.forEach(function (task) {});
+
+                // If there was not an ongoing tasks, we've finished the schdule
+                if (!foundOngoing) {
+                    // TODO
+                }
+            }
+        }
+    }, {
         key: "render",
         value: function render() {
+            var _this5 = this;
+
+            // Call checkTasks before rendering
+            this.checkTask();
+
+            // Compute the sections of the timer
+            var taskTimer = 0;
+            var elapsedHours = parseInt(this.state.elapsedTime / 3600);
+            var elapsedMins = parseInt(this.state.elapsedTime % 3600 / 60);
+            if (elapsedMins < 10) {
+                elapsedMins = "0" + elapsedMins;
+            }
+            var elapsedSecs = parseInt(this.state.elapsedTime % 60);
+            if (elapsedSecs < 10) {
+                elapsedSecs = "0" + elapsedSecs;
+            }
+
             return React.createElement(
                 "div",
                 { id: "scheduleDisplay" },
@@ -488,6 +536,16 @@ var ScheduleDisplay = function (_React$Component3) {
                     "h3",
                     null,
                     "Schedule"
+                ),
+                React.createElement(
+                    "p",
+                    null,
+                    "Time elapsed for this task: ",
+                    elapsedHours,
+                    ":",
+                    elapsedMins,
+                    ":",
+                    elapsedSecs
                 ),
                 React.createElement(
                     "table",
@@ -515,8 +573,10 @@ var ScheduleDisplay = function (_React$Component3) {
                         null,
                         this.state.schedule.tasks.map(function (value, index) {
                             var classText = "";
+                            taskTimer = value.duration;
                             if (value.status === "ongoing") {
                                 classText = "table-primary";
+                                taskTimer = value.duration - _this5.state.elapsedTime;
                             } else if (value.status === "completed") {
                                 classText = "table-success";
                             } else {
@@ -535,9 +595,11 @@ var ScheduleDisplay = function (_React$Component3) {
                                 React.createElement(
                                     "td",
                                     { scope: "col" },
-                                    parseInt(value.duration / 3600),
+                                    parseInt(taskTimer / 3600),
                                     ":",
-                                    parseInt(value.duration % 3600) / 60 >= 10 ? parseInt(value.duration % 3600) / 60 : "0" + parseInt(value.duration % 3600) / 60
+                                    parseInt(taskTimer % 3600 / 60) >= 10 ? parseInt(taskTimer % 3600 / 60) : "0" + parseInt(taskTimer % 3600 / 60),
+                                    ":",
+                                    parseInt(taskTimer % 3600 / 360) >= 10 ? parseInt(taskTimer % 3600 / 360) : "0" + parseInt(taskTimer % 3600 / 360)
                                 )
                             );
                         })
@@ -560,17 +622,17 @@ var AutoScheduler = function (_React$Component4) {
     function AutoScheduler(props) {
         _classCallCheck(this, AutoScheduler);
 
-        var _this5 = _possibleConstructorReturn(this, (AutoScheduler.__proto__ || Object.getPrototypeOf(AutoScheduler)).call(this, props));
+        var _this6 = _possibleConstructorReturn(this, (AutoScheduler.__proto__ || Object.getPrototypeOf(AutoScheduler)).call(this, props));
 
-        _this5.state = {
+        _this6.state = {
             scheduleExists: false,
             schedule: {},
             currentScreen: "HomeScreen"
         };
 
-        _this5.openScheduleBuilder = _this5.openScheduleBuilder.bind(_this5);
-        _this5.makeSchedule = _this5.makeSchedule.bind(_this5);
-        return _this5;
+        _this6.openScheduleBuilder = _this6.openScheduleBuilder.bind(_this6);
+        _this6.makeSchedule = _this6.makeSchedule.bind(_this6);
+        return _this6;
     }
 
     // Remove this module from the DOM 

@@ -75,7 +75,6 @@ class ScheduleBuilder extends React.Component {
         // User input data lives in the state
         // Use it to create an appropriate schedule
         let schedule = {
-            elapsedTime: 0,
             tasks: [],
         };
 
@@ -302,43 +301,93 @@ class ScheduleDisplay extends React.Component {
 
         // Deep copy the schedule into this components state
         this.state = {
+            elapsedTime: 0,
             schedule: JSON.parse(JSON.stringify(this.props.schedule))
         };
 
         // Initalize the schedule to start immediately
         // Set the first task to ongoing
         this.state.schedule.tasks[0].status = "ongoing";
+
+        this.updateTimer = this.updateTimer.bind(this);
+        this.checkTask = this.checkTask.bind(this);
+        
+        // Update the timer every second
+        setInterval(this.updateTimer, 1000);
+    }
+
+    updateTimer() {
+        // Add a second to the elapsed time
+        this.setState((state) => ({
+            elapsedTime: state.elapsedTime + 1
+        }));
+    }
+    
+    checkTask() {
+        // only check each time a minute has elapsed (a task cannot be shorter)
+        if(this.state.duration % 60 == 0) {
+            // Loop until we find the ongoing task
+            let foundOngoing = false;
+            this.state.schedule.tasks.forEach((task) => {
+                
+            });
+
+            // If there was not an ongoing tasks, we've finished the schdule
+            if(!foundOngoing) {
+                // TODO
+            }
+        }
     }
 
     render() {
+        // Call checkTasks before rendering
+        this.checkTask();
+
+        // Compute the sections of the timer
+        let taskTimer = 0;
+        let elapsedHours = parseInt(this.state.elapsedTime / 3600);
+        let elapsedMins = parseInt((this.state.elapsedTime % 3600) / 60);
+        if(elapsedMins < 10) {
+            elapsedMins = "0" + elapsedMins;
+        }
+        let elapsedSecs = parseInt(this.state.elapsedTime % 60);
+        if(elapsedSecs < 10) {
+            elapsedSecs = "0" + elapsedSecs;
+        }
+
         return (
             <div id="scheduleDisplay">
                 <h3>Schedule</h3>
+                <p>Time elapsed for this task: {elapsedHours}:{elapsedMins}:{elapsedSecs}</p>
                 <table class="table">
                     <thead>
                         <tr class="schedule-row">
                             <th scope="col">Task Name</th>
                             <th scope="col">Duration (Hours : Mins)</th>
-                        </tr>    
+                        </tr>
                     </thead>
                     <tbody>
                         { this.state.schedule.tasks.map((value, index) => {
                             let classText = "";
+                            taskTimer = value.duration;
                             if(value.status === "ongoing") {
                                 classText = "table-primary";
+                                taskTimer = value.duration - this.state.elapsedTime;
                             } else if(value.status === "completed") {
                                 classText = "table-success";
                             } else { // "pending"
                                 classText = "table-warning";
                             }
-
+                            
                             return (
                                 <tr class={`schedule-row ${classText}`}>
                                     <td scope="col">{value.name}</td>
-                                    <td scope="col">
-                                        {parseInt(value.duration / 3600)}
+                                    <td scope="col"> 
+                                        {parseInt( taskTimer / 3600)}
                                         :
-                                        {parseInt(value.duration % 3600) / 60 >= 10 ? parseInt(value.duration % 3600) / 60 : "0" + parseInt(value.duration % 3600) / 60}
+                                        {parseInt( (taskTimer % 3600) / 60 ) >= 10 ? parseInt( (taskTimer % 3600) / 60) : "0" + parseInt( (taskTimer % 3600) / 60)}
+                                        :
+                                        {parseInt( (taskTimer % 3600) / 60 ) >= 10 ? parseInt( (taskTimer % 3600) / 360) : "0" + parseInt( (taskTimer % 3600) / 360)}
                                     </td>
                                 </tr>
                             )
