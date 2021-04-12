@@ -497,22 +497,46 @@ var ScheduleDisplay = function (_React$Component3) {
     }, {
         key: "checkTask",
         value: function checkTask() {
-            // only check each time a minute has elapsed (a task cannot be shorter)
-            if (this.state.duration % 60 == 0) {
-                // Loop until we find the ongoing task
-                var foundOngoing = false;
-                this.state.schedule.tasks.forEach(function (task) {});
+            var _this5 = this;
 
-                // If there was not an ongoing tasks, we've finished the schdule
-                if (!foundOngoing) {
-                    // TODO
+            var updatedState = false;
+            var foundOngoing = false;
+            var completed = false;
+            // Loop until we find the ongoing task
+            this.state.schedule.tasks.forEach(function (task) {
+                if (task.status === "ongoing") {
+                    foundOngoing = true;
+                    // Check if the duration is less than the elapsed time
+                    if (task.duration <= _this5.state.elapsedTime) {
+                        // Mark the task as completed
+                        task.status = "completed";
+                        updatedState = true;
+                        // Reset the timer
+                        _this5.state.elapsedTime = 0;
+                        completed = true;
+                    }
                 }
+                // Mark the next task as ongoing if we completed the previous one
+                else if (foundOngoing && completed) {
+                        task.status = "ongoing";
+                        completed = false;
+                    }
+            });
+
+            // If there was not an ongoing tasks, we've finished the schdule
+            if (!foundOngoing) {}
+            // TODO
+
+
+            // Force an update to the component since if we have updated state
+            if (updatedState) {
+                this.forceUpdate();
             }
         }
     }, {
         key: "render",
         value: function render() {
-            var _this5 = this;
+            var _this6 = this;
 
             // Call checkTasks before rendering
             this.checkTask();
@@ -576,7 +600,7 @@ var ScheduleDisplay = function (_React$Component3) {
                             taskTimer = value.duration;
                             if (value.status === "ongoing") {
                                 classText = "table-primary";
-                                taskTimer = value.duration - _this5.state.elapsedTime;
+                                taskTimer = value.duration - _this6.state.elapsedTime;
                             } else if (value.status === "completed") {
                                 classText = "table-success";
                             } else {
@@ -599,7 +623,7 @@ var ScheduleDisplay = function (_React$Component3) {
                                     ":",
                                     parseInt(taskTimer % 3600 / 60) >= 10 ? parseInt(taskTimer % 3600 / 60) : "0" + parseInt(taskTimer % 3600 / 60),
                                     ":",
-                                    parseInt(taskTimer % 3600 / 360) >= 10 ? parseInt(taskTimer % 3600 / 360) : "0" + parseInt(taskTimer % 3600 / 360)
+                                    parseInt(taskTimer % 3600 % 60) >= 10 ? parseInt(taskTimer % 3600 % 60) : "0" + parseInt(taskTimer % 3600 % 60)
                                 )
                             );
                         })
@@ -622,17 +646,17 @@ var AutoScheduler = function (_React$Component4) {
     function AutoScheduler(props) {
         _classCallCheck(this, AutoScheduler);
 
-        var _this6 = _possibleConstructorReturn(this, (AutoScheduler.__proto__ || Object.getPrototypeOf(AutoScheduler)).call(this, props));
+        var _this7 = _possibleConstructorReturn(this, (AutoScheduler.__proto__ || Object.getPrototypeOf(AutoScheduler)).call(this, props));
 
-        _this6.state = {
+        _this7.state = {
             scheduleExists: false,
             schedule: {},
             currentScreen: "HomeScreen"
         };
 
-        _this6.openScheduleBuilder = _this6.openScheduleBuilder.bind(_this6);
-        _this6.makeSchedule = _this6.makeSchedule.bind(_this6);
-        return _this6;
+        _this7.openScheduleBuilder = _this7.openScheduleBuilder.bind(_this7);
+        _this7.makeSchedule = _this7.makeSchedule.bind(_this7);
+        return _this7;
     }
 
     // Remove this module from the DOM 

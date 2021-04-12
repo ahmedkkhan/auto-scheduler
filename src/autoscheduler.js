@@ -324,18 +324,38 @@ class ScheduleDisplay extends React.Component {
     }
     
     checkTask() {
-        // only check each time a minute has elapsed (a task cannot be shorter)
-        if(this.state.duration % 60 == 0) {
-            // Loop until we find the ongoing task
-            let foundOngoing = false;
-            this.state.schedule.tasks.forEach((task) => {
-                
-            });
-
-            // If there was not an ongoing tasks, we've finished the schdule
-            if(!foundOngoing) {
-                // TODO
+        let updatedState = false;
+        let foundOngoing = false;
+        let completed = false;
+        // Loop until we find the ongoing task
+        this.state.schedule.tasks.forEach((task) => {
+            if(task.status === "ongoing") {
+                foundOngoing = true;
+                // Check if the duration is less than the elapsed time
+                if(task.duration <= this.state.elapsedTime) {
+                    // Mark the task as completed
+                    task.status = "completed";
+                    updatedState = true;
+                    // Reset the timer
+                    this.state.elapsedTime = 0;
+                    completed = true;
+                }
             }
+            // Mark the next task as ongoing if we completed the previous one
+            else if(foundOngoing && completed) {
+                task.status = "ongoing";
+                completed = false;
+            }
+        });
+
+        // If there was not an ongoing tasks, we've finished the schdule
+        if(!foundOngoing) {
+            // TODO
+        }
+
+        // Force an update to the component since if we have updated state
+        if(updatedState) {
+            this.forceUpdate();
         }
     }
 
@@ -387,7 +407,7 @@ class ScheduleDisplay extends React.Component {
                                         :
                                         {parseInt( (taskTimer % 3600) / 60 ) >= 10 ? parseInt( (taskTimer % 3600) / 60) : "0" + parseInt( (taskTimer % 3600) / 60)}
                                         :
-                                        {parseInt( (taskTimer % 3600) / 60 ) >= 10 ? parseInt( (taskTimer % 3600) / 360) : "0" + parseInt( (taskTimer % 3600) / 360)}
+                                        {parseInt(  (taskTimer % 3600) % 60 )  >= 10 ? parseInt( (taskTimer % 3600) % 60 ) : "0" + parseInt(  (taskTimer % 3600) % 60) }
                                     </td>
                                 </tr>
                             )
