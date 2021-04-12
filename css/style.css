@@ -39,3 +39,11 @@ table {
 .schedule-row {
     text-align: left;
 }
+
+.form-check{
+    margin-top: 5px;
+}
+
+.col-form-label {
+    text-align: left;
+}

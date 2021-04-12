@@ -305,8 +305,8 @@ var ScheduleBuilder = function (_React$Component2) {
                     ),
                     React.createElement(
                         "div",
-                        { "class": "custom-control custom-checkbox col-md-2" },
-                        React.createElement("input", { "class": "custom-control-label", value: "", type: "checkbox", id: "breaks-" + i, checked: this.state.tasks[i].breaks, onChange: this.handleChange })
+                        { "class": "form-check col-md-2" },
+                        React.createElement("input", { "class": "form-check-input", value: "", type: "checkbox", id: "breaks-" + i, checked: this.state.tasks[i].breaks, onChange: this.handleChange })
                     )
                 ));
             };
@@ -390,50 +390,53 @@ var ScheduleBuilder = function (_React$Component2) {
                         null,
                         React.createElement(
                             "div",
-                            { "class": "form-row" },
+                            { "class": "form-group row" },
                             React.createElement(
-                                "td",
-                                null,
-                                "Mid-task break duration (mins):"
+                                "label",
+                                { "for": "settings-mtb", "class": "col-form-label col-md-7" },
+                                "Mid-task break duration (mins)"
                             ),
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement("input", { type: "number", id: "settings-mtb", value: this.state.midTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
+                                "div",
+                                { "class": "form-row col-md" },
+                                React.createElement("input", { type: "number", "class": "form-control", id: "settings-mtb", value: this.state.midTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
                             )
                         ),
                         React.createElement(
                             "div",
-                            { "class": "form-row" },
+                            { "class": "form-group row" },
                             React.createElement(
-                                "td",
-                                null,
+                                "label",
+                                { "for": "settings-btb", "class": "col-form-label col-md-7" },
                                 "Between-task break duration (mins):"
                             ),
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement("input", { type: "number", id: "settings-btb", value: this.state.betweenTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
+                                "div",
+                                { "class": "form-row col-md" },
+                                React.createElement("input", { type: "number", "class": "form-control", id: "settings-btb", value: this.state.betweenTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
                             )
                         ),
                         React.createElement(
                             "div",
-                            { "class": "form-row" },
+                            { "class": "form-group row" },
                             React.createElement(
-                                "td",
-                                null,
-                                "Time before mid-task breaks (hours : mins):"
+                                "label",
+                                { "for": "settings-freq-hrs", "class": "col-form-label col-md-7" },
+                                "Time before mid-task breaks (hrs:mins)"
                             ),
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement("input", { type: "number", id: "settings-freq-hrs", min: "0", max: "100", value: this.state.breakFreqHours, onChange: this.updateSettings }),
+                                "div",
+                                { "class": "form-row" },
                                 React.createElement(
-                                    "b",
-                                    null,
-                                    ":"
+                                    "div",
+                                    { "class": "col-md" },
+                                    React.createElement("input", { type: "number", "class": "form-control", id: "settings-freq-hrs", min: "0", max: "100", value: this.state.breakFreqHours, onChange: this.updateSettings })
                                 ),
-                                React.createElement("input", { type: "number", id: "settings-freq-mins", min: "0", max: "100", value: this.state.breakFreqMins, onChange: this.updateSettings })
+                                React.createElement(
+                                    "div",
+                                    { "class": "col-md" },
+                                    React.createElement("input", { type: "number", "class": "form-control", id: "settings-freq-mins", min: "0", max: "100", value: this.state.breakFreqMins, onChange: this.updateSettings })
+                                )
                             )
                         )
                     )
