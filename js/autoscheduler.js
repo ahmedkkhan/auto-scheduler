@@ -305,8 +305,8 @@ var ScheduleBuilder = function (_React$Component2) {
                     ),
                     React.createElement(
                         "div",
-                        { "class": "form-check col-md-2" },
-                        React.createElement("input", { "class": "form-check-input", value: "", type: "checkbox", id: "breaks-" + i, checked: this.state.tasks[i].breaks, onChange: this.handleChange })
+                        { "class": "custom-control custom-checkbox col-md-2" },
+                        React.createElement("input", { "class": "custom-control-label", value: "", type: "checkbox", id: "breaks-" + i, checked: this.state.tasks[i].breaks, onChange: this.handleChange })
                     )
                 ));
             };
@@ -390,53 +390,50 @@ var ScheduleBuilder = function (_React$Component2) {
                         null,
                         React.createElement(
                             "div",
-                            { "class": "form-group row" },
+                            { "class": "form-row" },
                             React.createElement(
-                                "label",
-                                { "for": "settings-mtb", "class": "col-form-label col-md-7" },
-                                "Mid-task break duration (mins)"
+                                "td",
+                                null,
+                                "Mid-task break duration (mins):"
                             ),
                             React.createElement(
-                                "div",
-                                { "class": "form-row col-md" },
-                                React.createElement("input", { type: "number", "class": "form-control", id: "settings-mtb", value: this.state.midTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
+                                "td",
+                                null,
+                                React.createElement("input", { type: "number", id: "settings-mtb", value: this.state.midTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
                             )
                         ),
                         React.createElement(
                             "div",
-                            { "class": "form-group row" },
+                            { "class": "form-row" },
                             React.createElement(
-                                "label",
-                                { "for": "settings-btb", "class": "col-form-label col-md-7" },
+                                "td",
+                                null,
                                 "Between-task break duration (mins):"
                             ),
                             React.createElement(
-                                "div",
-                                { "class": "form-row col-md" },
-                                React.createElement("input", { type: "number", "class": "form-control", id: "settings-btb", value: this.state.betweenTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
+                                "td",
+                                null,
+                                React.createElement("input", { type: "number", id: "settings-btb", value: this.state.betweenTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
                             )
                         ),
                         React.createElement(
                             "div",
-                            { "class": "form-group row" },
+                            { "class": "form-row" },
                             React.createElement(
-                                "label",
-                                { "for": "settings-freq-hrs", "class": "col-form-label col-md-7" },
-                                "Time before mid-task breaks (hrs:mins)"
+                                "td",
+                                null,
+                                "Time before mid-task breaks (hours : mins):"
                             ),
                             React.createElement(
-                                "div",
-                                { "class": "form-row" },
+                                "td",
+                                null,
+                                React.createElement("input", { type: "number", id: "settings-freq-hrs", min: "0", max: "100", value: this.state.breakFreqHours, onChange: this.updateSettings }),
                                 React.createElement(
-                                    "div",
-                                    { "class": "col-md" },
-                                    React.createElement("input", { type: "number", "class": "form-control", id: "settings-freq-hrs", min: "0", max: "100", value: this.state.breakFreqHours, onChange: this.updateSettings })
+                                    "b",
+                                    null,
+                                    ":"
                                 ),
-                                React.createElement(
-                                    "div",
-                                    { "class": "col-md" },
-                                    React.createElement("input", { type: "number", "class": "form-control", id: "settings-freq-mins", min: "0", max: "100", value: this.state.breakFreqMins, onChange: this.updateSettings })
-                                )
+                                React.createElement("input", { type: "number", id: "settings-freq-mins", min: "0", max: "100", value: this.state.breakFreqMins, onChange: this.updateSettings })
                             )
                         )
                     )
@@ -472,7 +469,9 @@ var ScheduleDisplay = function (_React$Component3) {
 
         _this4.state = {
             elapsedTime: 0,
-            schedule: JSON.parse(JSON.stringify(_this4.props.schedule))
+            schedule: JSON.parse(JSON.stringify(_this4.props.schedule)),
+            showPopup: false,
+            popupTask: {}
         };
 
         // Initalize the schedule to start immediately
@@ -481,6 +480,8 @@ var ScheduleDisplay = function (_React$Component3) {
 
         _this4.updateTimer = _this4.updateTimer.bind(_this4);
         _this4.checkTask = _this4.checkTask.bind(_this4);
+        _this4.markTaskAsDone = _this4.markTaskAsDone.bind(_this4);
+        _this4.finishScheudle = _this4.finishScheudle.bind(_this4);
 
         // Update the timer every second
         setInterval(_this4.updateTimer, 1000);
@@ -497,10 +498,52 @@ var ScheduleDisplay = function (_React$Component3) {
                 };
             });
         }
+
+        // Event handler for "I'm done with this task" button 
+
+    }, {
+        key: "markTaskAsDone",
+        value: function markTaskAsDone() {
+            var _this5 = this;
+
+            var foundOngoing = false;
+            var updatedState = false;
+            var completed = false;
+            // Loop until we find the ongoing task
+            this.state.schedule.tasks.forEach(function (task) {
+                if (task.status === "ongoing") {
+                    foundOngoing = true;
+                    // Mark the task as completed
+                    task.status = "completed";
+                    updatedState = true;
+                    // Reset the timer
+                    _this5.state.elapsedTime = 0;
+                    completed = true;
+                }
+                // Mark the next task as ongoing if we completed the previous one
+                else if (foundOngoing && completed) {
+                        task.status = "ongoing";
+                        completed = false;
+                    }
+            });
+
+            // If there was not an ongoing tasks, we've finished the schdule
+            if (!foundOngoing) {
+                this.finishScheudle();
+            }
+
+            // Force an update to the component since if we have updated state
+            if (updatedState) {
+                this.forceUpdate();
+            }
+        }
+    }, {
+        key: "finishScheudle",
+        value: function finishScheudle() {}
     }, {
         key: "checkTask",
         value: function checkTask() {
-            var _this5 = this;
+            var _this6 = this;
 
             var updatedState = false;
             var foundOngoing = false;
@@ -510,13 +553,16 @@ var ScheduleDisplay = function (_React$Component3) {
                 if (task.status === "ongoing") {
                     foundOngoing = true;
                     // Check if the duration is less than the elapsed time
-                    if (task.duration <= _this5.state.elapsedTime) {
+                    if (task.duration <= _this6.state.elapsedTime) {
                         // Mark the task as completed
                         task.status = "completed";
                         updatedState = true;
                         // Reset the timer
-                        _this5.state.elapsedTime = 0;
+                        _this6.state.elapsedTime = 0;
                         completed = true;
+                        // Create the popup
+                        _this6.state.popupTask = JSON.parse(JSON.stringify(task));
+                        _this6.state.showPopup = true;
                     }
                 }
                 // Mark the next task as ongoing if we completed the previous one
@@ -527,9 +573,9 @@ var ScheduleDisplay = function (_React$Component3) {
             });
 
             // If there was not an ongoing tasks, we've finished the schdule
-            if (!foundOngoing) {}
-            // TODO
-
+            if (!foundOngoing) {
+                this.finishScheudle();
+            }
 
             // Force an update to the component since if we have updated state
             if (updatedState) {
@@ -539,7 +585,7 @@ var ScheduleDisplay = function (_React$Component3) {
     }, {
         key: "render",
         value: function render() {
-            var _this6 = this;
+            var _this7 = this;
 
             // Call checkTasks before rendering
             this.checkTask();
@@ -564,15 +610,32 @@ var ScheduleDisplay = function (_React$Component3) {
                     null,
                     "Schedule"
                 ),
+                this.state.showPopup && React.createElement(TaskPopup, {
+                    taskname: this.state.popupTask.name
+                }),
                 React.createElement(
-                    "p",
-                    null,
-                    "Time elapsed for this task: ",
-                    elapsedHours,
-                    ":",
-                    elapsedMins,
-                    ":",
-                    elapsedSecs
+                    "div",
+                    { id: "scheduleHeader" },
+                    React.createElement(
+                        "p",
+                        null,
+                        React.createElement(
+                            "span",
+                            { "class": "col-md-4" },
+                            "Time elapsed for this task: ",
+                            elapsedHours,
+                            ":",
+                            elapsedMins,
+                            ":",
+                            elapsedSecs
+                        ),
+                        React.createElement("span", { "class": "col-md-4" }),
+                        React.createElement(
+                            "button",
+                            { "class": "btn btn-primary col-md-3", onClick: this.markTaskAsDone },
+                            "I'm done with this task"
+                        )
+                    )
                 ),
                 React.createElement(
                     "table",
@@ -603,7 +666,7 @@ var ScheduleDisplay = function (_React$Component3) {
                             taskTimer = value.duration;
                             if (value.status === "ongoing") {
                                 classText = "table-primary";
-                                taskTimer = value.duration - _this6.state.elapsedTime;
+                                taskTimer = value.duration - _this7.state.elapsedTime;
                             } else if (value.status === "completed") {
                                 classText = "table-success";
                             } else {
@@ -639,27 +702,56 @@ var ScheduleDisplay = function (_React$Component3) {
     return ScheduleDisplay;
 }(React.Component);
 
+var TaskPopup = function (_React$Component4) {
+    _inherits(TaskPopup, _React$Component4);
+
+    function TaskPopup(props) {
+        _classCallCheck(this, TaskPopup);
+
+        return _possibleConstructorReturn(this, (TaskPopup.__proto__ || Object.getPrototypeOf(TaskPopup)).call(this, props));
+    }
+
+    _createClass(TaskPopup, [{
+        key: "render",
+        value: function render() {
+            return React.createElement(
+                "div",
+                { id: "taskPopup" },
+                React.createElement(
+                    "p",
+                    null,
+                    "Did u finish ",
+                    this.props.taskname,
+                    "?"
+                )
+            );
+        }
+    }]);
+
+    return TaskPopup;
+}(React.Component);
+
 // parent react component
 // contains the state of the scheduler and renders the components
 
 
-var AutoScheduler = function (_React$Component4) {
-    _inherits(AutoScheduler, _React$Component4);
+var AutoScheduler = function (_React$Component5) {
+    _inherits(AutoScheduler, _React$Component5);
 
     function AutoScheduler(props) {
         _classCallCheck(this, AutoScheduler);
 
-        var _this7 = _possibleConstructorReturn(this, (AutoScheduler.__proto__ || Object.getPrototypeOf(AutoScheduler)).call(this, props));
+        var _this9 = _possibleConstructorReturn(this, (AutoScheduler.__proto__ || Object.getPrototypeOf(AutoScheduler)).call(this, props));
 
-        _this7.state = {
+        _this9.state = {
             scheduleExists: false,
             schedule: {},
             currentScreen: "HomeScreen"
         };
 
-        _this7.openScheduleBuilder = _this7.openScheduleBuilder.bind(_this7);
-        _this7.makeSchedule = _this7.makeSchedule.bind(_this7);
-        return _this7;
+        _this9.openScheduleBuilder = _this9.openScheduleBuilder.bind(_this9);
+        _this9.makeSchedule = _this9.makeSchedule.bind(_this9);
+        return _this9;
     }
 
     // Remove this module from the DOM 

@@ -302,7 +302,9 @@ class ScheduleDisplay extends React.Component {
         // Deep copy the schedule into this components state
         this.state = {
             elapsedTime: 0,
-            schedule: JSON.parse(JSON.stringify(this.props.schedule))
+            schedule: JSON.parse(JSON.stringify(this.props.schedule)),
+            showPopup: false,
+            popupTask: {}
         };
 
         // Initalize the schedule to start immediately
@@ -311,6 +313,8 @@ class ScheduleDisplay extends React.Component {
 
         this.updateTimer = this.updateTimer.bind(this);
         this.checkTask = this.checkTask.bind(this);
+        this.markTaskAsDone = this.markTaskAsDone.bind(this);
+        this.finishScheudle = this.finishScheudle.bind(this);
         
         // Update the timer every second
         setInterval(this.updateTimer, 1000);
@@ -321,6 +325,44 @@ class ScheduleDisplay extends React.Component {
         this.setState((state) => ({
             elapsedTime: state.elapsedTime + 1
         }));
+    }
+
+    // Event handler for "I'm done with this task" button 
+    markTaskAsDone() {
+        let foundOngoing = false;
+        let updatedState = false;
+        let completed = false;
+        // Loop until we find the ongoing task
+        this.state.schedule.tasks.forEach((task) => {
+            if(task.status === "ongoing") {
+                foundOngoing = true;
+                // Mark the task as completed
+                task.status = "completed";
+                updatedState = true;
+                // Reset the timer
+                this.state.elapsedTime = 0;
+                completed = true;
+            }
+            // Mark the next task as ongoing if we completed the previous one
+            else if(foundOngoing && completed) {
+                task.status = "ongoing";
+                completed = false;
+            }
+        });
+
+        // If there was not an ongoing tasks, we've finished the schdule
+        if(!foundOngoing) {
+            this.finishScheudle();
+        }
+
+        // Force an update to the component since if we have updated state
+        if(updatedState) {
+            this.forceUpdate();
+        }
+    }
+
+    finishScheudle() {
+
     }
     
     checkTask() {
@@ -339,6 +381,9 @@ class ScheduleDisplay extends React.Component {
                     // Reset the timer
                     this.state.elapsedTime = 0;
                     completed = true;
+                    // Create the popup
+                    this.state.popupTask = JSON.parse(JSON.stringify(task));
+                    this.state.showPopup = true;
                 }
             }
             // Mark the next task as ongoing if we completed the previous one
@@ -350,7 +395,7 @@ class ScheduleDisplay extends React.Component {
 
         // If there was not an ongoing tasks, we've finished the schdule
         if(!foundOngoing) {
-            // TODO
+            this.finishScheudle();
         }
 
         // Force an update to the component since if we have updated state
@@ -378,7 +423,16 @@ class ScheduleDisplay extends React.Component {
         return (
             <div id="scheduleDisplay">
                 <h3>Schedule</h3>
-                <p>Time elapsed for this task: {elapsedHours}:{elapsedMins}:{elapsedSecs}</p>
+                { this.state.showPopup && <TaskPopup 
+                    taskname={this.state.popupTask.name}
+                /> }
+                <div id="scheduleHeader">
+                    <p>
+                        <span class="col-md-4">Time elapsed for this task: {elapsedHours}:{elapsedMins}:{elapsedSecs}</span>
+                        <span class="col-md-4"></span>
+                        <button class="btn btn-primary col-md-3" onClick={this.markTaskAsDone}>I'm done with this task</button>
+                    </p>
+                </div>
                 <table class="table">
                     <thead>
                         <tr class="schedule-row">
@@ -414,6 +468,20 @@ class ScheduleDisplay extends React.Component {
                         })}
                     </tbody>
                 </table>
+            </div>
+        )
+    }
+}
+
+class TaskPopup extends React.Component {
+    constructor(props) {
+        super(props);
+    }
+
+    render() {
+        return (
+            <div id="taskPopup">
+                <p>Did u finish {this.props.taskname}?</p>
             </div>
         )
     }
