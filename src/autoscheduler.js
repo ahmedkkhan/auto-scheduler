@@ -427,11 +427,9 @@ class ScheduleDisplay extends React.Component {
                     taskname={this.state.popupTask.name}
                 /> }
                 <div id="scheduleHeader">
-                    <p>
-                        <span class="col-md-4">Time elapsed for this task: {elapsedHours}:{elapsedMins}:{elapsedSecs}</span>
-                        <span class="col-md-4"></span>
-                        <button class="btn btn-primary col-md-3" onClick={this.markTaskAsDone}>I'm done with this task</button>
-                    </p>
+                    <p>Time elapsed for this task: {elapsedHours}:{elapsedMins}:{elapsedSecs}</p>
+                    <button class="btn btn-primary col-md-3" onClick={this.markTaskAsDone}>I'm done with this task</button>
+                    <button class="btn btn-danger col-md-3" onClick={this.props.endSchedule}>End schedule early</button>
                 </div>
                 <table class="table">
                     <thead>
@@ -500,6 +498,7 @@ class AutoScheduler extends React.Component {
 
         this.openScheduleBuilder = this.openScheduleBuilder.bind(this);
         this.makeSchedule = this.makeSchedule.bind(this);
+        this.endSchedule = this.endSchedule.bind(this);
     }
 
     // Remove this module from the DOM 
@@ -519,6 +518,15 @@ class AutoScheduler extends React.Component {
         });
     }
 
+    // Ends the schedule, returns to the main menu
+    endSchedule(schedule) {
+        this.setState({
+            schedule: {},
+            currentScreen: "HomeScreen",
+            scheduleExists: false
+        })
+    }
+
     render() {
         return (
             <div id="container">
@@ -533,6 +541,7 @@ class AutoScheduler extends React.Component {
 
                 { this.state.currentScreen === "ScheduleDisplay" && <ScheduleDisplay
                     schedule={this.state.schedule}
+                    endSchedule={this.endSchedule}
                 /> }
             </div>
         );

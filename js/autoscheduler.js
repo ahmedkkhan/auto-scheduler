@@ -619,22 +619,22 @@ var ScheduleDisplay = function (_React$Component3) {
                     React.createElement(
                         "p",
                         null,
-                        React.createElement(
-                            "span",
-                            { "class": "col-md-4" },
-                            "Time elapsed for this task: ",
-                            elapsedHours,
-                            ":",
-                            elapsedMins,
-                            ":",
-                            elapsedSecs
-                        ),
-                        React.createElement("span", { "class": "col-md-4" }),
-                        React.createElement(
-                            "button",
-                            { "class": "btn btn-primary col-md-3", onClick: this.markTaskAsDone },
-                            "I'm done with this task"
-                        )
+                        "Time elapsed for this task: ",
+                        elapsedHours,
+                        ":",
+                        elapsedMins,
+                        ":",
+                        elapsedSecs
+                    ),
+                    React.createElement(
+                        "button",
+                        { "class": "btn btn-primary col-md-3", onClick: this.markTaskAsDone },
+                        "I'm done with this task"
+                    ),
+                    React.createElement(
+                        "button",
+                        { "class": "btn btn-danger col-md-3", onClick: this.props.endSchedule },
+                        "End schedule early"
                     )
                 ),
                 React.createElement(
@@ -751,6 +751,7 @@ var AutoScheduler = function (_React$Component5) {
 
         _this9.openScheduleBuilder = _this9.openScheduleBuilder.bind(_this9);
         _this9.makeSchedule = _this9.makeSchedule.bind(_this9);
+        _this9.endSchedule = _this9.endSchedule.bind(_this9);
         return _this9;
     }
 
@@ -777,6 +778,18 @@ var AutoScheduler = function (_React$Component5) {
                 currentScreen: "ScheduleDisplay"
             });
         }
+
+        // Ends the schedule, returns to the main menu
+
+    }, {
+        key: "endSchedule",
+        value: function endSchedule(schedule) {
+            this.setState({
+                schedule: {},
+                currentScreen: "HomeScreen",
+                scheduleExists: false
+            });
+        }
     }, {
         key: "render",
         value: function render() {
@@ -791,7 +804,8 @@ var AutoScheduler = function (_React$Component5) {
                     makeSchedule: this.makeSchedule
                 }),
                 this.state.currentScreen === "ScheduleDisplay" && React.createElement(ScheduleDisplay, {
-                    schedule: this.state.schedule
+                    schedule: this.state.schedule,
+                    endSchedule: this.endSchedule
                 })
             );
         }
