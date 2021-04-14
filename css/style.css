@@ -47,3 +47,10 @@ table {
 .col-form-label {
     text-align: left;
 }
+
+#taskPopup {
+    border: 2px solid grey;
+    border-radius: 25px;
+    width: 50%;
+    margin: auto;
+}

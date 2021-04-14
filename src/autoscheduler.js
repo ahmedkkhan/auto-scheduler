@@ -160,7 +160,7 @@ class ScheduleBuilder extends React.Component {
             currentTaskID++;
         });
 
-        console.log(schedule);        
+        // console.log(schedule);        
 
         this.props.makeSchedule(schedule);
     }
@@ -304,7 +304,8 @@ class ScheduleDisplay extends React.Component {
             elapsedTime: 0,
             schedule: JSON.parse(JSON.stringify(this.props.schedule)),
             showPopup: false,
-            popupTask: {}
+            popupTask: {},
+            popupObject: null
         };
 
         // Initalize the schedule to start immediately
@@ -315,7 +316,9 @@ class ScheduleDisplay extends React.Component {
         this.checkTask = this.checkTask.bind(this);
         this.markTaskAsDone = this.markTaskAsDone.bind(this);
         this.finishScheudle = this.finishScheudle.bind(this);
-        
+
+        this.acceptPopup = this.acceptPopup.bind(this);
+
         // Update the timer every second
         setInterval(this.updateTimer, 1000);
     }
@@ -384,6 +387,8 @@ class ScheduleDisplay extends React.Component {
                     // Create the popup
                     this.state.popupTask = JSON.parse(JSON.stringify(task));
                     this.state.showPopup = true;
+                    // Set the pop-up to clear after 30 seconds
+                    this.state.popupObject = setTimeout(this.acceptPopup, 30000);
                 }
             }
             // Mark the next task as ongoing if we completed the previous one
@@ -402,6 +407,14 @@ class ScheduleDisplay extends React.Component {
         if(updatedState) {
             this.forceUpdate();
         }
+    }
+
+    // Functions for the post-task popup
+    acceptPopup() {
+        this.setState({
+            showPopup: false,
+            popupObject: null
+        });
     }
 
     render() {
@@ -425,6 +438,7 @@ class ScheduleDisplay extends React.Component {
                 <h3>Schedule</h3>
                 { this.state.showPopup && <TaskPopup 
                     taskname={this.state.popupTask.name}
+                    accept={this.acceptPopup}
                 /> }
                 <div id="scheduleHeader">
                     <p>Time elapsed for this task: {elapsedHours}:{elapsedMins}:{elapsedSecs}</p>
@@ -480,6 +494,11 @@ class TaskPopup extends React.Component {
         return (
             <div id="taskPopup">
                 <p>Did u finish {this.props.taskname}?</p>
+                <p>
+                    <button class="btn btn-success" onClick={this.props.accept}>Yes!</button>
+                    <button class="btn btn-secondary">Reschedule for Later</button>
+                    <button class="btn btn-secondary">Add more time</button>
+                </p>
             </div>
         )
     }

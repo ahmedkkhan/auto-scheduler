@@ -196,7 +196,7 @@ var ScheduleBuilder = function (_React$Component2) {
                 currentTaskID++;
             });
 
-            console.log(schedule);
+            // console.log(schedule);        
 
             this.props.makeSchedule(schedule);
         }
@@ -471,7 +471,8 @@ var ScheduleDisplay = function (_React$Component3) {
             elapsedTime: 0,
             schedule: JSON.parse(JSON.stringify(_this4.props.schedule)),
             showPopup: false,
-            popupTask: {}
+            popupTask: {},
+            popupObject: null
         };
 
         // Initalize the schedule to start immediately
@@ -482,6 +483,8 @@ var ScheduleDisplay = function (_React$Component3) {
         _this4.checkTask = _this4.checkTask.bind(_this4);
         _this4.markTaskAsDone = _this4.markTaskAsDone.bind(_this4);
         _this4.finishScheudle = _this4.finishScheudle.bind(_this4);
+
+        _this4.acceptPopup = _this4.acceptPopup.bind(_this4);
 
         // Update the timer every second
         setInterval(_this4.updateTimer, 1000);
@@ -563,6 +566,8 @@ var ScheduleDisplay = function (_React$Component3) {
                         // Create the popup
                         _this6.state.popupTask = JSON.parse(JSON.stringify(task));
                         _this6.state.showPopup = true;
+                        // Set the pop-up to clear after 30 seconds
+                        _this6.state.popupObject = setTimeout(_this6.acceptPopup, 30000);
                     }
                 }
                 // Mark the next task as ongoing if we completed the previous one
@@ -581,6 +586,17 @@ var ScheduleDisplay = function (_React$Component3) {
             if (updatedState) {
                 this.forceUpdate();
             }
+        }
+
+        // Functions for the post-task popup
+
+    }, {
+        key: "acceptPopup",
+        value: function acceptPopup() {
+            this.setState({
+                showPopup: false,
+                popupObject: null
+            });
         }
     }, {
         key: "render",
@@ -611,7 +627,8 @@ var ScheduleDisplay = function (_React$Component3) {
                     "Schedule"
                 ),
                 this.state.showPopup && React.createElement(TaskPopup, {
-                    taskname: this.state.popupTask.name
+                    taskname: this.state.popupTask.name,
+                    accept: this.acceptPopup
                 }),
                 React.createElement(
                     "div",
@@ -723,6 +740,25 @@ var TaskPopup = function (_React$Component4) {
                     "Did u finish ",
                     this.props.taskname,
                     "?"
+                ),
+                React.createElement(
+                    "p",
+                    null,
+                    React.createElement(
+                        "button",
+                        { "class": "btn btn-success", onClick: this.props.accept },
+                        "Yes!"
+                    ),
+                    React.createElement(
+                        "button",
+                        { "class": "btn btn-secondary" },
+                        "Reschedule for Later"
+                    ),
+                    React.createElement(
+                        "button",
+                        { "class": "btn btn-secondary" },
+                        "Add more time"
+                    )
                 )
             );
         }
