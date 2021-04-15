@@ -385,7 +385,7 @@ class ScheduleDisplay extends React.Component {
     }
 
     finishScheudle() {
-        this.endSchedule();
+        this.props.endSchedule();
     }
     
     checkTask() {
@@ -633,7 +633,7 @@ class AutoScheduler extends React.Component {
             schedule: {},
             currentScreen: "HomeScreen",
             scheduleExists: false
-        })
+        });
     }
 
     render() {

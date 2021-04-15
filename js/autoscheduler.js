@@ -566,7 +566,7 @@ var ScheduleDisplay = function (_React$Component3) {
     }, {
         key: "finishScheudle",
         value: function finishScheudle() {
-            this.endSchedule();
+            this.props.endSchedule();
         }
     }, {
         key: "checkTask",
