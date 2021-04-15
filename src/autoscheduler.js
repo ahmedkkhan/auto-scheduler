@@ -6,9 +6,12 @@ class HomeScreen extends React.Component {
     render() {
         return (
             <div id="homeScreen">
+                <div>
+                    Auto Scheduler is a web application that helps you plan out your day to improve productivity. Click the button below to get started.
+                </div>
+                <hr /> 
                 <button class="btn btn-primary btn-lg btn-block" onClick={this.props.createSchedule}>Create Schedule</button>
-                <br />
-                { this.props.exists && <button onClick={this.props.resumeHandler}>Resume Schedule</button> }
+                { this.props.exists ? <button class="btn btn-primary btn-lg btn-block" onClick={this.props.resumeHandler}>Resume Schedule</button> : <button class="btn btn-secondary btn-lg btn-block">Resume Schedule</button> }
             </div>
         );
     }
@@ -103,6 +106,7 @@ class ScheduleBuilder extends React.Component {
 
         // Compute the break frequency in seconds
         let breakFreq = (this.state.breakFreqHours * 3600) + (this.state.breakFreqMins * 60);
+        let lastUrgency = 0;
 
         // Create the schedule data structure
         let currentTaskID = 0;
@@ -119,7 +123,7 @@ class ScheduleBuilder extends React.Component {
                 schedule.tasks.push({
                     name: "Break",
                     duration: this.state.betweenTaskBreakLength,
-                    urgency: 0,
+                    urgency: lastUrgency,
                     id: currentTaskID,
                     status: "pending"
                 });
@@ -158,6 +162,8 @@ class ScheduleBuilder extends React.Component {
             });
 
             currentTaskID++;
+            // Use this task's urgency for the urgency of the subsequent break
+            lastUrgency = task.urgency;
         });
 
         // console.log(schedule);        
@@ -227,20 +233,20 @@ class ScheduleBuilder extends React.Component {
                         <input type="text" class="form-control" id={"name-" + i} value={this.state.tasks[i].name} onChange={this.handleChange}></input>
                     </div>
                     <div class="form-group col-md-2">
-                        <input type="number" class="form-control" id={"hrs-" + i} min="0" max="100" value={this.state.tasks[i].hrs} onChange={this.handleChange}></input>                        
+                        <input type="number" class="form-control" id={"hrs-" + i} min="0" max="100" value={this.state.tasks[i].hrs} onChange={this.handleChange}></input>               
                     </div>
                     <div class="form-group col-md-2">
                         <input type="number" class="form-control" id={"mins-" + i} min="0" max="100" value={this.state.tasks[i].mins} onChange={this.handleChange}></input>
                     </div>
                     <div class="form-group col-md-3">
-                        <select class="form-control" id={"urgency-" + i} value={this.state.tasks[i].urgency} onChange={this.handleChange}>
+                        <select class="form-control urgent" id={"urgency-" + i} value={this.state.tasks[i].urgency} onChange={this.handleChange}>
                             <option value="1">Very Urgent</option>
                             <option value="2">Somewhat Urgent</option>
                             <option value="3">Not Urgent</option>
                         </select>
                     </div>
-                    <div class="custom-control custom-checkbox col-md-2">
-                        <input class="custom-control-label" value="" type="checkbox" id={"breaks-" + i} checked={this.state.tasks[i].breaks} onChange={this.handleChange}></input>
+                    <div class="form-check col-md-2">
+                        <input class="form-check-input" value="" type="checkbox" id={"breaks-" + i} checked={this.state.tasks[i].breaks} onChange={this.handleChange}></input>
                     </div>
                 </div>
             );
@@ -249,8 +255,14 @@ class ScheduleBuilder extends React.Component {
         return (
             <div id="scheduleBuilder">
                 <h3>Schedule Builder</h3>
+                <br />
+                <div id="scheduleBuilderTitle">
+                    Build your list of tasks in the table below. Auto Scheduler will automatically order and display your tasks when you hit the "Start Schedule" button.
+                    <hr />    
+                </div>
+
                 <form onKeyPress={this.preventEnterKeySubmit}>
-                    <table>
+                    <table id="scheduleBuilderTable">
                         <div class="form-row">
                             <div class="form-group col-md-3">Task Name</div>
                             <div class="form-group col-md-4">Duration (hours : mins)</div>
@@ -267,29 +279,34 @@ class ScheduleBuilder extends React.Component {
                             <button class="btn btn-danger form-group col-md-3" type="reset" onClick={this.reset}>Reset Schedule</button>
                             <button class="btn btn-success form-group col-md-3" onClick={this.processSchedule}>Start Schedule</button>
                         </div>
-                        
+                        <hr />
                     </table>
-                    <br/><br/>
                     <h3>Settings</h3>
-                    <table>
-                        <div class="form-row">
-                            <td>Mid-task break duration (mins):</td>
-                            <td><input type="number" id="settings-mtb" value={this.state.midTaskBreakLength / 60} min="0" onChange={this.updateSettings}></input></td>
+                    <table id="settingsTable">
+                        <div class="form-group row">
+                            <label for="settings-mtb" class="col-form-label col-md-7">Mid-task break duration (mins)</label>
+                            <div class="form-row col-md">
+                            <input type="number" class="form-control" id="settings-mtb" value={this.state.midTaskBreakLength / 60} min="0" onChange={this.updateSettings} />
+                            </div>
                         </div>
-                        <div class="form-row">
-                            <td>Between-task break duration (mins):</td>
-                            <td><input type="number" id="settings-btb" value={this.state.betweenTaskBreakLength / 60} min="0" onChange={this.updateSettings}></input></td>
+                        <div class="form-group row">
+                            <label for="settings-freq-hrs" class="col-form-label col-md-7">Time before mid-task breaks (hrs:mins)</label>
+                                <div class="form-row col-md">
+                                    <input type="number" class="form-control" id="settings-freq-hrs" min="0" max="100" value={this.state.breakFreqHours} onChange={this.updateSettings} />
+                                </div>
+                                <div class="form-row col-md">
+                                    <input type="number" class="form-control" id="settings-freq-mins" min="0" max="100" value={this.state.breakFreqMins} onChange={this.updateSettings}/>
+                                </div>
                         </div>
-                        <div class="form-row">
-                            <td>Time before mid-task breaks (hours : mins):</td>
-                            <td>
-                                <input type="number" id="settings-freq-hrs" min="0" max="100" value={this.state.breakFreqHours} onChange={this.updateSettings}></input>
-                                <b>:</b>
-                                <input type="number" id="settings-freq-mins" min="0" max="100" value={this.state.breakFreqMins} onChange={this.updateSettings}></input>
-                            </td>
+                        <div class="form-group row">
+                            <label for="settings-btb" class="col-form-label col-md-7">Between-task break duration (mins):</label>
+                            <div class="form-row col-md">
+                                <input type="number" class="form-control" id="settings-btb" value={this.state.betweenTaskBreakLength / 60} min="0" onChange={this.updateSettings} />
+                            </div>
                         </div>
                     </table>
                 </form>
+                <br /><br /><br />
             </div>
         );
     }
@@ -305,6 +322,7 @@ class ScheduleDisplay extends React.Component {
             schedule: JSON.parse(JSON.stringify(this.props.schedule)),
             showPopup: false,
             popupTask: {},
+            popupTaskNum: 0,
             popupObject: null
         };
 
@@ -318,6 +336,8 @@ class ScheduleDisplay extends React.Component {
         this.finishScheudle = this.finishScheudle.bind(this);
 
         this.acceptPopup = this.acceptPopup.bind(this);
+        this.addTime = this.addTime.bind(this);
+        this.reschedule = this.reschedule.bind(this);
 
         // Update the timer every second
         setInterval(this.updateTimer, 1000);
@@ -333,7 +353,6 @@ class ScheduleDisplay extends React.Component {
     // Event handler for "I'm done with this task" button 
     markTaskAsDone() {
         let foundOngoing = false;
-        let updatedState = false;
         let completed = false;
         // Loop until we find the ongoing task
         this.state.schedule.tasks.forEach((task) => {
@@ -341,7 +360,6 @@ class ScheduleDisplay extends React.Component {
                 foundOngoing = true;
                 // Mark the task as completed
                 task.status = "completed";
-                updatedState = true;
                 // Reset the timer
                 this.state.elapsedTime = 0;
                 completed = true;
@@ -358,20 +376,23 @@ class ScheduleDisplay extends React.Component {
             this.finishScheudle();
         }
 
-        // Force an update to the component since if we have updated state
-        if(updatedState) {
-            this.forceUpdate();
-        }
+        // Make sure the popup is disabled
+        this.state.popupObject = null;
+        this.state.showPopup = false;
+        
+        // Force an update to the component since we have updated state
+        this.forceUpdate();
     }
 
     finishScheudle() {
-
+        this.endSchedule();
     }
     
     checkTask() {
         let updatedState = false;
         let foundOngoing = false;
         let completed = false;
+        let counter = 0;
         // Loop until we find the ongoing task
         this.state.schedule.tasks.forEach((task) => {
             if(task.status === "ongoing") {
@@ -387,6 +408,7 @@ class ScheduleDisplay extends React.Component {
                     // Create the popup
                     this.state.popupTask = JSON.parse(JSON.stringify(task));
                     this.state.showPopup = true;
+                    this.state.popupTaskNum = counter;
                     // Set the pop-up to clear after 30 seconds
                     this.state.popupObject = setTimeout(this.acceptPopup, 30000);
                 }
@@ -396,6 +418,8 @@ class ScheduleDisplay extends React.Component {
                 task.status = "ongoing";
                 completed = false;
             }
+            // Increment counter to store task list index
+            counter +=1;
         });
 
         // If there was not an ongoing tasks, we've finished the schdule
@@ -417,6 +441,68 @@ class ScheduleDisplay extends React.Component {
         });
     }
 
+    addTime() {
+        // Insert a new task (same as task that just ended w/ 30 min duration)
+        this.state.schedule.tasks.splice(this.state.popupTaskNum + 1, 0, {
+            name: this.state.popupTask.name + " (+30 mins)",
+            status: "ready",
+            duration: 1800,
+            urgency: this.state.popupTask.urgency,
+            id: this.state.popupTask.currentTaskID
+        });
+
+        // Set the ready task to ongoing and ongoing task
+        this.state.schedule.tasks.forEach((task) => {
+            if(task.status === "ready") {
+                task.status = "ongoing";
+            }
+            else if(task.status === "ongoing") {
+                task.status = "pending";
+            }
+        });
+
+        // Remove the popup
+        this.state.popupObject = null;
+        this.state.showPopup = false;
+
+        // Force the task to update
+        this.forceUpdate();
+    }
+
+    // Function for popup
+    // Create a new task that is identical to this, and put it as the last task with this urgency level
+    reschedule() {
+        // If we don't find a task with lower urgency, reschedule to the last task
+        let rescheduleIndex = this.state.schedule.tasks.length;
+        let idx = 0;
+        // only reschedule this task for after the next ongoing task
+        let foundOngoing = false;
+        this.state.schedule.tasks.forEach((task) => { 
+            if(task.status === "ongoing") {
+                foundOngoing = true;
+            }
+            else if(foundOngoing && task.urgency > this.state.popupTask.urgency){
+                rescheduleIndex = idx;
+            }
+            idx++;
+        });
+
+        this.state.schedule.tasks.splice(rescheduleIndex, 0, {
+            name: this.state.popupTask.name + " (rescheduled)",
+            status: "pending",
+            duration:  this.state.popupTask.duration,
+            urgency: this.state.popupTask.urgency,
+            id: this.state.popupTask.currentTaskID
+        });
+        
+        // Remove the popup
+        this.state.popupObject = null;
+        this.state.showPopup = false;
+
+        // Force the task to update
+        this.forceUpdate();
+    }
+    
     render() {
         // Call checkTasks before rendering
         this.checkTask();
@@ -439,12 +525,15 @@ class ScheduleDisplay extends React.Component {
                 { this.state.showPopup && <TaskPopup 
                     taskname={this.state.popupTask.name}
                     accept={this.acceptPopup}
+                    addTime={this.addTime}
+                    reschedule={this.reschedule}
                 /> }
                 <div id="scheduleHeader">
                     <p>Time elapsed for this task: {elapsedHours}:{elapsedMins}:{elapsedSecs}</p>
                     <button class="btn btn-primary col-md-3" onClick={this.markTaskAsDone}>I'm done with this task</button>
                     <button class="btn btn-danger col-md-3" onClick={this.props.endSchedule}>End schedule early</button>
                 </div>
+                <br/>
                 <table class="table">
                     <thead>
                         <tr class="schedule-row">
@@ -480,6 +569,7 @@ class ScheduleDisplay extends React.Component {
                         })}
                     </tbody>
                 </table>
+                <br /><br /><br />
             </div>
         )
     }
@@ -496,8 +586,8 @@ class TaskPopup extends React.Component {
                 <p>Did u finish {this.props.taskname}?</p>
                 <p>
                     <button class="btn btn-success" onClick={this.props.accept}>Yes!</button>
-                    <button class="btn btn-secondary">Reschedule for Later</button>
-                    <button class="btn btn-secondary">Add more time</button>
+                    <button class="btn btn-secondary" onClick={this.props.reschedule}>Reschedule for Later</button>
+                    <button class="btn btn-secondary" onClick={this.props.addTime}> Add 30 Minutes</button>
                 </p>
             </div>
         )

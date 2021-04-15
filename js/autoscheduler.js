@@ -24,14 +24,23 @@ var HomeScreen = function (_React$Component) {
                 "div",
                 { id: "homeScreen" },
                 React.createElement(
+                    "div",
+                    null,
+                    "Auto Scheduler is a web application that helps you plan out your day to improve productivity. Click the button below to get started."
+                ),
+                React.createElement("hr", null),
+                React.createElement(
                     "button",
                     { "class": "btn btn-primary btn-lg btn-block", onClick: this.props.createSchedule },
                     "Create Schedule"
                 ),
-                React.createElement("br", null),
-                this.props.exists && React.createElement(
+                this.props.exists ? React.createElement(
                     "button",
-                    { onClick: this.props.resumeHandler },
+                    { "class": "btn btn-primary btn-lg btn-block", onClick: this.props.resumeHandler },
+                    "Resume Schedule"
+                ) : React.createElement(
+                    "button",
+                    { "class": "btn btn-secondary btn-lg btn-block" },
                     "Resume Schedule"
                 )
             );
@@ -139,6 +148,7 @@ var ScheduleBuilder = function (_React$Component2) {
 
             // Compute the break frequency in seconds
             var breakFreq = this.state.breakFreqHours * 3600 + this.state.breakFreqMins * 60;
+            var lastUrgency = 0;
 
             // Create the schedule data structure
             var currentTaskID = 0;
@@ -155,7 +165,7 @@ var ScheduleBuilder = function (_React$Component2) {
                     schedule.tasks.push({
                         name: "Break",
                         duration: _this3.state.betweenTaskBreakLength,
-                        urgency: 0,
+                        urgency: lastUrgency,
                         id: currentTaskID,
                         status: "pending"
                     });
@@ -194,6 +204,8 @@ var ScheduleBuilder = function (_React$Component2) {
                 });
 
                 currentTaskID++;
+                // Use this task's urgency for the urgency of the subsequent break
+                lastUrgency = task.urgency;
             });
 
             // console.log(schedule);        
@@ -285,7 +297,7 @@ var ScheduleBuilder = function (_React$Component2) {
                         { "class": "form-group col-md-3" },
                         React.createElement(
                             "select",
-                            { "class": "form-control", id: "urgency-" + i, value: this.state.tasks[i].urgency, onChange: this.handleChange },
+                            { "class": "form-control urgent", id: "urgency-" + i, value: this.state.tasks[i].urgency, onChange: this.handleChange },
                             React.createElement(
                                 "option",
                                 { value: "1" },
@@ -305,8 +317,8 @@ var ScheduleBuilder = function (_React$Component2) {
                     ),
                     React.createElement(
                         "div",
-                        { "class": "custom-control custom-checkbox col-md-2" },
-                        React.createElement("input", { "class": "custom-control-label", value: "", type: "checkbox", id: "breaks-" + i, checked: this.state.tasks[i].breaks, onChange: this.handleChange })
+                        { "class": "form-check col-md-2" },
+                        React.createElement("input", { "class": "form-check-input", value: "", type: "checkbox", id: "breaks-" + i, checked: this.state.tasks[i].breaks, onChange: this.handleChange })
                     )
                 ));
             };
@@ -319,12 +331,19 @@ var ScheduleBuilder = function (_React$Component2) {
                     null,
                     "Schedule Builder"
                 ),
+                React.createElement("br", null),
+                React.createElement(
+                    "div",
+                    { id: "scheduleBuilderTitle" },
+                    "Build your list of tasks in the table below. Auto Scheduler will automatically order and display your tasks when you hit the \"Start Schedule\" button.",
+                    React.createElement("hr", null)
+                ),
                 React.createElement(
                     "form",
                     { onKeyPress: this.preventEnterKeySubmit },
                     React.createElement(
                         "table",
-                        null,
+                        { id: "scheduleBuilderTable" },
                         React.createElement(
                             "div",
                             { "class": "form-row" },
@@ -376,10 +395,9 @@ var ScheduleBuilder = function (_React$Component2) {
                                 { "class": "btn btn-success form-group col-md-3", onClick: this.processSchedule },
                                 "Start Schedule"
                             )
-                        )
+                        ),
+                        React.createElement("hr", null)
                     ),
-                    React.createElement("br", null),
-                    React.createElement("br", null),
                     React.createElement(
                         "h3",
                         null,
@@ -387,57 +405,59 @@ var ScheduleBuilder = function (_React$Component2) {
                     ),
                     React.createElement(
                         "table",
-                        null,
+                        { id: "settingsTable" },
                         React.createElement(
                             "div",
-                            { "class": "form-row" },
+                            { "class": "form-group row" },
                             React.createElement(
-                                "td",
-                                null,
-                                "Mid-task break duration (mins):"
+                                "label",
+                                { "for": "settings-mtb", "class": "col-form-label col-md-7" },
+                                "Mid-task break duration (mins)"
                             ),
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement("input", { type: "number", id: "settings-mtb", value: this.state.midTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
+                                "div",
+                                { "class": "form-row col-md" },
+                                React.createElement("input", { type: "number", "class": "form-control", id: "settings-mtb", value: this.state.midTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
                             )
                         ),
                         React.createElement(
                             "div",
-                            { "class": "form-row" },
+                            { "class": "form-group row" },
                             React.createElement(
-                                "td",
-                                null,
+                                "label",
+                                { "for": "settings-freq-hrs", "class": "col-form-label col-md-7" },
+                                "Time before mid-task breaks (hrs:mins)"
+                            ),
+                            React.createElement(
+                                "div",
+                                { "class": "form-row col-md" },
+                                React.createElement("input", { type: "number", "class": "form-control", id: "settings-freq-hrs", min: "0", max: "100", value: this.state.breakFreqHours, onChange: this.updateSettings })
+                            ),
+                            React.createElement(
+                                "div",
+                                { "class": "form-row col-md" },
+                                React.createElement("input", { type: "number", "class": "form-control", id: "settings-freq-mins", min: "0", max: "100", value: this.state.breakFreqMins, onChange: this.updateSettings })
+                            )
+                        ),
+                        React.createElement(
+                            "div",
+                            { "class": "form-group row" },
+                            React.createElement(
+                                "label",
+                                { "for": "settings-btb", "class": "col-form-label col-md-7" },
                                 "Between-task break duration (mins):"
                             ),
                             React.createElement(
-                                "td",
-                                null,
-                                React.createElement("input", { type: "number", id: "settings-btb", value: this.state.betweenTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
-                            )
-                        ),
-                        React.createElement(
-                            "div",
-                            { "class": "form-row" },
-                            React.createElement(
-                                "td",
-                                null,
-                                "Time before mid-task breaks (hours : mins):"
-                            ),
-                            React.createElement(
-                                "td",
-                                null,
-                                React.createElement("input", { type: "number", id: "settings-freq-hrs", min: "0", max: "100", value: this.state.breakFreqHours, onChange: this.updateSettings }),
-                                React.createElement(
-                                    "b",
-                                    null,
-                                    ":"
-                                ),
-                                React.createElement("input", { type: "number", id: "settings-freq-mins", min: "0", max: "100", value: this.state.breakFreqMins, onChange: this.updateSettings })
+                                "div",
+                                { "class": "form-row col-md" },
+                                React.createElement("input", { type: "number", "class": "form-control", id: "settings-btb", value: this.state.betweenTaskBreakLength / 60, min: "0", onChange: this.updateSettings })
                             )
                         )
                     )
-                )
+                ),
+                React.createElement("br", null),
+                React.createElement("br", null),
+                React.createElement("br", null)
             );
         }
     }], [{
@@ -472,6 +492,7 @@ var ScheduleDisplay = function (_React$Component3) {
             schedule: JSON.parse(JSON.stringify(_this4.props.schedule)),
             showPopup: false,
             popupTask: {},
+            popupTaskNum: 0,
             popupObject: null
         };
 
@@ -485,6 +506,8 @@ var ScheduleDisplay = function (_React$Component3) {
         _this4.finishScheudle = _this4.finishScheudle.bind(_this4);
 
         _this4.acceptPopup = _this4.acceptPopup.bind(_this4);
+        _this4.addTime = _this4.addTime.bind(_this4);
+        _this4.reschedule = _this4.reschedule.bind(_this4);
 
         // Update the timer every second
         setInterval(_this4.updateTimer, 1000);
@@ -510,7 +533,6 @@ var ScheduleDisplay = function (_React$Component3) {
             var _this5 = this;
 
             var foundOngoing = false;
-            var updatedState = false;
             var completed = false;
             // Loop until we find the ongoing task
             this.state.schedule.tasks.forEach(function (task) {
@@ -518,7 +540,6 @@ var ScheduleDisplay = function (_React$Component3) {
                     foundOngoing = true;
                     // Mark the task as completed
                     task.status = "completed";
-                    updatedState = true;
                     // Reset the timer
                     _this5.state.elapsedTime = 0;
                     completed = true;
@@ -535,14 +556,18 @@ var ScheduleDisplay = function (_React$Component3) {
                 this.finishScheudle();
             }
 
-            // Force an update to the component since if we have updated state
-            if (updatedState) {
-                this.forceUpdate();
-            }
+            // Make sure the popup is disabled
+            this.state.popupObject = null;
+            this.state.showPopup = false;
+
+            // Force an update to the component since we have updated state
+            this.forceUpdate();
         }
     }, {
         key: "finishScheudle",
-        value: function finishScheudle() {}
+        value: function finishScheudle() {
+            this.endSchedule();
+        }
     }, {
         key: "checkTask",
         value: function checkTask() {
@@ -551,6 +576,7 @@ var ScheduleDisplay = function (_React$Component3) {
             var updatedState = false;
             var foundOngoing = false;
             var completed = false;
+            var counter = 0;
             // Loop until we find the ongoing task
             this.state.schedule.tasks.forEach(function (task) {
                 if (task.status === "ongoing") {
@@ -566,6 +592,7 @@ var ScheduleDisplay = function (_React$Component3) {
                         // Create the popup
                         _this6.state.popupTask = JSON.parse(JSON.stringify(task));
                         _this6.state.showPopup = true;
+                        _this6.state.popupTaskNum = counter;
                         // Set the pop-up to clear after 30 seconds
                         _this6.state.popupObject = setTimeout(_this6.acceptPopup, 30000);
                     }
@@ -575,6 +602,8 @@ var ScheduleDisplay = function (_React$Component3) {
                         task.status = "ongoing";
                         completed = false;
                     }
+                // Increment counter to store task list index
+                counter += 1;
             });
 
             // If there was not an ongoing tasks, we've finished the schdule
@@ -599,9 +628,75 @@ var ScheduleDisplay = function (_React$Component3) {
             });
         }
     }, {
+        key: "addTime",
+        value: function addTime() {
+            // Insert a new task (same as task that just ended w/ 30 min duration)
+            this.state.schedule.tasks.splice(this.state.popupTaskNum + 1, 0, {
+                name: this.state.popupTask.name + " (+30 mins)",
+                status: "ready",
+                duration: 1800,
+                urgency: this.state.popupTask.urgency,
+                id: this.state.popupTask.currentTaskID
+            });
+
+            // Set the ready task to ongoing and ongoing task
+            this.state.schedule.tasks.forEach(function (task) {
+                if (task.status === "ready") {
+                    task.status = "ongoing";
+                } else if (task.status === "ongoing") {
+                    task.status = "pending";
+                }
+            });
+
+            // Remove the popup
+            this.state.popupObject = null;
+            this.state.showPopup = false;
+
+            // Force the task to update
+            this.forceUpdate();
+        }
+
+        // Function for popup
+        // Create a new task that is identical to this, and put it as the last task with this urgency level
+
+    }, {
+        key: "reschedule",
+        value: function reschedule() {
+            var _this7 = this;
+
+            // If we don't find a task with lower urgency, reschedule to the last task
+            var rescheduleIndex = this.state.schedule.tasks.length;
+            var idx = 0;
+            // only reschedule this task for after the next ongoing task
+            var foundOngoing = false;
+            this.state.schedule.tasks.forEach(function (task) {
+                if (task.status === "ongoing") {
+                    foundOngoing = true;
+                } else if (foundOngoing && task.urgency > _this7.state.popupTask.urgency) {
+                    rescheduleIndex = idx;
+                }
+                idx++;
+            });
+
+            this.state.schedule.tasks.splice(rescheduleIndex, 0, {
+                name: this.state.popupTask.name + " (rescheduled)",
+                status: "pending",
+                duration: this.state.popupTask.duration,
+                urgency: this.state.popupTask.urgency,
+                id: this.state.popupTask.currentTaskID
+            });
+
+            // Remove the popup
+            this.state.popupObject = null;
+            this.state.showPopup = false;
+
+            // Force the task to update
+            this.forceUpdate();
+        }
+    }, {
         key: "render",
         value: function render() {
-            var _this7 = this;
+            var _this8 = this;
 
             // Call checkTasks before rendering
             this.checkTask();
@@ -628,7 +723,9 @@ var ScheduleDisplay = function (_React$Component3) {
                 ),
                 this.state.showPopup && React.createElement(TaskPopup, {
                     taskname: this.state.popupTask.name,
-                    accept: this.acceptPopup
+                    accept: this.acceptPopup,
+                    addTime: this.addTime,
+                    reschedule: this.reschedule
                 }),
                 React.createElement(
                     "div",
@@ -654,6 +751,7 @@ var ScheduleDisplay = function (_React$Component3) {
                         "End schedule early"
                     )
                 ),
+                React.createElement("br", null),
                 React.createElement(
                     "table",
                     { "class": "table" },
@@ -683,7 +781,7 @@ var ScheduleDisplay = function (_React$Component3) {
                             taskTimer = value.duration;
                             if (value.status === "ongoing") {
                                 classText = "table-primary";
-                                taskTimer = value.duration - _this7.state.elapsedTime;
+                                taskTimer = value.duration - _this8.state.elapsedTime;
                             } else if (value.status === "completed") {
                                 classText = "table-success";
                             } else {
@@ -711,7 +809,10 @@ var ScheduleDisplay = function (_React$Component3) {
                             );
                         })
                     )
-                )
+                ),
+                React.createElement("br", null),
+                React.createElement("br", null),
+                React.createElement("br", null)
             );
         }
     }]);
@@ -751,13 +852,13 @@ var TaskPopup = function (_React$Component4) {
                     ),
                     React.createElement(
                         "button",
-                        { "class": "btn btn-secondary" },
+                        { "class": "btn btn-secondary", onClick: this.props.reschedule },
                         "Reschedule for Later"
                     ),
                     React.createElement(
                         "button",
-                        { "class": "btn btn-secondary" },
-                        "Add more time"
+                        { "class": "btn btn-secondary", onClick: this.props.addTime },
+                        " Add 30 Minutes"
                     )
                 )
             );
@@ -777,18 +878,18 @@ var AutoScheduler = function (_React$Component5) {
     function AutoScheduler(props) {
         _classCallCheck(this, AutoScheduler);
 
-        var _this9 = _possibleConstructorReturn(this, (AutoScheduler.__proto__ || Object.getPrototypeOf(AutoScheduler)).call(this, props));
+        var _this10 = _possibleConstructorReturn(this, (AutoScheduler.__proto__ || Object.getPrototypeOf(AutoScheduler)).call(this, props));
 
-        _this9.state = {
+        _this10.state = {
             scheduleExists: false,
             schedule: {},
             currentScreen: "HomeScreen"
         };
 
-        _this9.openScheduleBuilder = _this9.openScheduleBuilder.bind(_this9);
-        _this9.makeSchedule = _this9.makeSchedule.bind(_this9);
-        _this9.endSchedule = _this9.endSchedule.bind(_this9);
-        return _this9;
+        _this10.openScheduleBuilder = _this10.openScheduleBuilder.bind(_this10);
+        _this10.makeSchedule = _this10.makeSchedule.bind(_this10);
+        _this10.endSchedule = _this10.endSchedule.bind(_this10);
+        return _this10;
     }
 
     // Remove this module from the DOM 
