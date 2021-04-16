@@ -11,7 +11,7 @@ class HomeScreen extends React.Component {
                 </div>
                 <hr /> 
                 <button class="btn btn-primary btn-lg btn-block" onClick={this.props.createSchedule}>Create Schedule</button>
-                { this.props.exists ? <button class="btn btn-primary btn-lg btn-block" onClick={this.props.resumeHandler}>Resume Schedule</button> : <button class="btn btn-secondary btn-lg btn-block">Resume Schedule</button> }
+                { this.props.exists ? <button class="btn btn-success btn-lg btn-block" onClick={this.props.resumeHandler}>Resume Schedule</button> : <button class="btn btn-secondary btn-lg btn-block">Resume Schedule</button> }
             </div>
         );
     }
@@ -316,31 +316,37 @@ class ScheduleDisplay extends React.Component {
     constructor(props) {
         super(props);
 
-        // Deep copy the schedule into this components state
-        this.state = {
-            elapsedTime: 0,
-            schedule: JSON.parse(JSON.stringify(this.props.schedule)),
-            showPopup: false,
-            popupTask: {},
-            popupTaskNum: 0,
-            popupObject: null
-        };
-
-        // Initalize the schedule to start immediately
-        // Set the first task to ongoing
-        this.state.schedule.tasks[0].status = "ongoing";
-
         this.updateTimer = this.updateTimer.bind(this);
         this.checkTask = this.checkTask.bind(this);
         this.markTaskAsDone = this.markTaskAsDone.bind(this);
-        this.finishScheudle = this.finishScheudle.bind(this);
+        this.finishSchedule = this.finishSchedule.bind(this);
+        this.closeSchedule = this.closeSchedule.bind(this);
 
         this.acceptPopup = this.acceptPopup.bind(this);
         this.addTime = this.addTime.bind(this);
         this.reschedule = this.reschedule.bind(this);
 
-        // Update the timer every second
-        setInterval(this.updateTimer, 1000);
+        let time = 0;
+        if(this.props.resume) {
+            time = this.props.elapsedTime;
+        }
+        
+        // Deep copy the schedule into this components state
+        this.state = {
+            elapsedTime: time,
+            schedule: JSON.parse(JSON.stringify(this.props.schedule)),
+            showPopup: false,
+            popupTask: {},
+            popupTaskNum: 0,
+            popupObject: null,
+            timer: setInterval(this.updateTimer, 1000)
+        };
+
+        // Initalize the schedule to start immediately
+        // Set the first task to ongoing
+        if(!this.props.resume) {
+            this.state.schedule.tasks[0].status = "ongoing";
+        }
     }
 
     updateTimer() {
@@ -348,6 +354,10 @@ class ScheduleDisplay extends React.Component {
         this.setState((state) => ({
             elapsedTime: state.elapsedTime + 1
         }));
+        // Save the state to local storage
+        localStorage.setItem("schedule", JSON.stringify(this.state.schedule));
+        localStorage.setItem("elapsedTime", JSON.stringify(this.state.elapsedTime));
+        // console.log("Saved timer: " + this.state.elapsedTime);
     }
 
     // Event handler for "I'm done with this task" button 
@@ -373,7 +383,7 @@ class ScheduleDisplay extends React.Component {
 
         // If there was not an ongoing tasks, we've finished the schdule
         if(!foundOngoing) {
-            this.finishScheudle();
+            this.finishSchedule();
         }
 
         // Make sure the popup is disabled
@@ -384,7 +394,16 @@ class ScheduleDisplay extends React.Component {
         this.forceUpdate();
     }
 
-    finishScheudle() {
+    finishSchedule() {
+        // Remove any state from localStorge
+        localStorage.removeItem("schedule");
+        localStorage.removeItem("elapsedTime");
+        this.closeSchedule();
+    }
+
+    closeSchedule() {
+        clearInterval(this.state.timer);
+        // Call endSchedule to return to home screen
         this.props.endSchedule();
     }
     
@@ -424,7 +443,7 @@ class ScheduleDisplay extends React.Component {
 
         // If there was not an ongoing tasks, we've finished the schdule
         if(!foundOngoing) {
-            this.finishScheudle();
+            this.finishSchedule();
         }
 
         // Force an update to the component since if we have updated state
@@ -531,7 +550,7 @@ class ScheduleDisplay extends React.Component {
                 <div id="scheduleHeader">
                     <p>Time elapsed for this task: {elapsedHours}:{elapsedMins}:{elapsedSecs}</p>
                     <button class="btn btn-primary col-md-3" onClick={this.markTaskAsDone}>I'm done with this task</button>
-                    <button class="btn btn-danger col-md-3" onClick={this.props.endSchedule}>End schedule early</button>
+                    <button class="btn btn-danger col-md-3" onClick={this.closeSchedule}>End schedule early</button>
                 </div>
                 <br/>
                 <table class="table">
@@ -599,15 +618,42 @@ class TaskPopup extends React.Component {
 class AutoScheduler extends React.Component {
     constructor(props) {
         super(props);
+        
         this.state = {
             scheduleExists: false,
             schedule: {},
+            elapsedTime: 0,
             currentScreen: "HomeScreen",
+            resume: false
         };
 
         this.openScheduleBuilder = this.openScheduleBuilder.bind(this);
         this.makeSchedule = this.makeSchedule.bind(this);
         this.endSchedule = this.endSchedule.bind(this);
+        this.resumeSchedule = this.resumeSchedule.bind(this);
+        this.loadLocalSchedule = this.loadLocalSchedule.bind(this);
+    }
+
+    componentDidMount() {
+        this.loadLocalSchedule();
+    }
+
+    // Attempt to load a schedule from disk, and updtate state accordingly
+    loadLocalSchedule() {
+        // Check the local storage to see if a schedule already exists
+        let localSchedule = JSON.parse(localStorage.getItem("schedule"));
+        let localElapsedTime = JSON.parse(localStorage.getItem("elapsedTime"));
+
+        if(localSchedule !== null && localSchedule !== undefined && localSchedule["tasks"] !== undefined) {
+            // If the schedule exists, load it
+            this.setState({
+                scheduleExists: true,
+                schedule: localSchedule,
+                elapsedTime: localElapsedTime
+            });
+        }
+
+        this.forceUpdate();
     }
 
     // Remove this module from the DOM 
@@ -632,7 +678,16 @@ class AutoScheduler extends React.Component {
         this.setState({
             schedule: {},
             currentScreen: "HomeScreen",
-            scheduleExists: false
+            resume: false
+        });
+        this.loadLocalSchedule();
+    }
+
+    // Resume the schedule from localStorage
+    resumeSchedule() {
+        this.setState({
+            currentScreen: "ScheduleDisplay",
+            resume: true,
         });
     }
 
@@ -642,6 +697,7 @@ class AutoScheduler extends React.Component {
                 { this.state.currentScreen === "HomeScreen" && <HomeScreen 
                     exists={this.state.scheduleExists}
                     createSchedule={this.openScheduleBuilder}
+                    resumeHandler={this.resumeSchedule}
                 /> }
 
                 { this.state.currentScreen === "ScheduleBuilder" && <ScheduleBuilder 
@@ -649,6 +705,8 @@ class AutoScheduler extends React.Component {
                 /> }
 
                 { this.state.currentScreen === "ScheduleDisplay" && <ScheduleDisplay
+                    resume={this.state.resume}
+                    elapsedTime={this.state.elapsedTime}
                     schedule={this.state.schedule}
                     endSchedule={this.endSchedule}
                 /> }

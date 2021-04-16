@@ -36,7 +36,7 @@ var HomeScreen = function (_React$Component) {
                 ),
                 this.props.exists ? React.createElement(
                     "button",
-                    { "class": "btn btn-primary btn-lg btn-block", onClick: this.props.resumeHandler },
+                    { "class": "btn btn-success btn-lg btn-block", onClick: this.props.resumeHandler },
                     "Resume Schedule"
                 ) : React.createElement(
                     "button",
@@ -484,33 +484,39 @@ var ScheduleDisplay = function (_React$Component3) {
     function ScheduleDisplay(props) {
         _classCallCheck(this, ScheduleDisplay);
 
-        // Deep copy the schedule into this components state
         var _this4 = _possibleConstructorReturn(this, (ScheduleDisplay.__proto__ || Object.getPrototypeOf(ScheduleDisplay)).call(this, props));
-
-        _this4.state = {
-            elapsedTime: 0,
-            schedule: JSON.parse(JSON.stringify(_this4.props.schedule)),
-            showPopup: false,
-            popupTask: {},
-            popupTaskNum: 0,
-            popupObject: null
-        };
-
-        // Initalize the schedule to start immediately
-        // Set the first task to ongoing
-        _this4.state.schedule.tasks[0].status = "ongoing";
 
         _this4.updateTimer = _this4.updateTimer.bind(_this4);
         _this4.checkTask = _this4.checkTask.bind(_this4);
         _this4.markTaskAsDone = _this4.markTaskAsDone.bind(_this4);
-        _this4.finishScheudle = _this4.finishScheudle.bind(_this4);
+        _this4.finishSchedule = _this4.finishSchedule.bind(_this4);
+        _this4.closeSchedule = _this4.closeSchedule.bind(_this4);
 
         _this4.acceptPopup = _this4.acceptPopup.bind(_this4);
         _this4.addTime = _this4.addTime.bind(_this4);
         _this4.reschedule = _this4.reschedule.bind(_this4);
 
-        // Update the timer every second
-        setInterval(_this4.updateTimer, 1000);
+        var time = 0;
+        if (_this4.props.resume) {
+            time = _this4.props.elapsedTime;
+        }
+
+        // Deep copy the schedule into this components state
+        _this4.state = {
+            elapsedTime: time,
+            schedule: JSON.parse(JSON.stringify(_this4.props.schedule)),
+            showPopup: false,
+            popupTask: {},
+            popupTaskNum: 0,
+            popupObject: null,
+            timer: setInterval(_this4.updateTimer, 1000)
+        };
+
+        // Initalize the schedule to start immediately
+        // Set the first task to ongoing
+        if (!_this4.props.resume) {
+            _this4.state.schedule.tasks[0].status = "ongoing";
+        }
         return _this4;
     }
 
@@ -523,6 +529,10 @@ var ScheduleDisplay = function (_React$Component3) {
                     elapsedTime: state.elapsedTime + 1
                 };
             });
+            // Save the state to local storage
+            localStorage.setItem("schedule", JSON.stringify(this.state.schedule));
+            localStorage.setItem("elapsedTime", JSON.stringify(this.state.elapsedTime));
+            // console.log("Saved timer: " + this.state.elapsedTime);
         }
 
         // Event handler for "I'm done with this task" button 
@@ -553,7 +563,7 @@ var ScheduleDisplay = function (_React$Component3) {
 
             // If there was not an ongoing tasks, we've finished the schdule
             if (!foundOngoing) {
-                this.finishScheudle();
+                this.finishSchedule();
             }
 
             // Make sure the popup is disabled
@@ -564,8 +574,18 @@ var ScheduleDisplay = function (_React$Component3) {
             this.forceUpdate();
         }
     }, {
-        key: "finishScheudle",
-        value: function finishScheudle() {
+        key: "finishSchedule",
+        value: function finishSchedule() {
+            // Remove any state from localStorge
+            localStorage.removeItem("schedule");
+            localStorage.removeItem("elapsedTime");
+            this.closeSchedule();
+        }
+    }, {
+        key: "closeSchedule",
+        value: function closeSchedule() {
+            clearInterval(this.state.timer);
+            // Call endSchedule to return to home screen
             this.props.endSchedule();
         }
     }, {
@@ -608,7 +628,7 @@ var ScheduleDisplay = function (_React$Component3) {
 
             // If there was not an ongoing tasks, we've finished the schdule
             if (!foundOngoing) {
-                this.finishScheudle();
+                this.finishSchedule();
             }
 
             // Force an update to the component since if we have updated state
@@ -747,7 +767,7 @@ var ScheduleDisplay = function (_React$Component3) {
                     ),
                     React.createElement(
                         "button",
-                        { "class": "btn btn-danger col-md-3", onClick: this.props.endSchedule },
+                        { "class": "btn btn-danger col-md-3", onClick: this.closeSchedule },
                         "End schedule early"
                     )
                 ),
@@ -883,20 +903,50 @@ var AutoScheduler = function (_React$Component5) {
         _this10.state = {
             scheduleExists: false,
             schedule: {},
-            currentScreen: "HomeScreen"
+            elapsedTime: 0,
+            currentScreen: "HomeScreen",
+            resume: false
         };
 
         _this10.openScheduleBuilder = _this10.openScheduleBuilder.bind(_this10);
         _this10.makeSchedule = _this10.makeSchedule.bind(_this10);
         _this10.endSchedule = _this10.endSchedule.bind(_this10);
+        _this10.resumeSchedule = _this10.resumeSchedule.bind(_this10);
+        _this10.loadLocalSchedule = _this10.loadLocalSchedule.bind(_this10);
         return _this10;
     }
 
-    // Remove this module from the DOM 
-    // Load the schedule builder component
-
-
     _createClass(AutoScheduler, [{
+        key: "componentDidMount",
+        value: function componentDidMount() {
+            this.loadLocalSchedule();
+        }
+
+        // Attempt to load a schedule from disk, and updtate state accordingly
+
+    }, {
+        key: "loadLocalSchedule",
+        value: function loadLocalSchedule() {
+            // Check the local storage to see if a schedule already exists
+            var localSchedule = JSON.parse(localStorage.getItem("schedule"));
+            var localElapsedTime = JSON.parse(localStorage.getItem("elapsedTime"));
+
+            if (localSchedule !== null && localSchedule !== undefined && localSchedule["tasks"] !== undefined) {
+                // If the schedule exists, load it
+                this.setState({
+                    scheduleExists: true,
+                    schedule: localSchedule,
+                    elapsedTime: localElapsedTime
+                });
+            }
+
+            this.forceUpdate();
+        }
+
+        // Remove this module from the DOM 
+        // Load the schedule builder component
+
+    }, {
         key: "openScheduleBuilder",
         value: function openScheduleBuilder() {
             this.setState({
@@ -924,7 +974,19 @@ var AutoScheduler = function (_React$Component5) {
             this.setState({
                 schedule: {},
                 currentScreen: "HomeScreen",
-                scheduleExists: false
+                resume: false
+            });
+            this.loadLocalSchedule();
+        }
+
+        // Resume the schedule from localStorage
+
+    }, {
+        key: "resumeSchedule",
+        value: function resumeSchedule() {
+            this.setState({
+                currentScreen: "ScheduleDisplay",
+                resume: true
             });
         }
     }, {
@@ -935,12 +997,15 @@ var AutoScheduler = function (_React$Component5) {
                 { id: "container" },
                 this.state.currentScreen === "HomeScreen" && React.createElement(HomeScreen, {
                     exists: this.state.scheduleExists,
-                    createSchedule: this.openScheduleBuilder
+                    createSchedule: this.openScheduleBuilder,
+                    resumeHandler: this.resumeSchedule
                 }),
                 this.state.currentScreen === "ScheduleBuilder" && React.createElement(ScheduleBuilder, {
                     makeSchedule: this.makeSchedule
                 }),
                 this.state.currentScreen === "ScheduleDisplay" && React.createElement(ScheduleDisplay, {
+                    resume: this.state.resume,
+                    elapsedTime: this.state.elapsedTime,
                     schedule: this.state.schedule,
                     endSchedule: this.endSchedule
                 })
