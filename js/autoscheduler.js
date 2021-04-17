@@ -615,6 +615,9 @@ var ScheduleDisplay = function (_React$Component3) {
                         _this6.state.popupTaskNum = counter;
                         // Set the pop-up to clear after 30 seconds
                         _this6.state.popupObject = setTimeout(_this6.acceptPopup, 30000);
+                        // Play ding sound on popup
+                        var ding = new Audio("audio/ding.mp3");
+                        ding.play();
                     }
                 }
                 // Mark the next task as ongoing if we completed the previous one

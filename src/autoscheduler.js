@@ -430,6 +430,9 @@ class ScheduleDisplay extends React.Component {
                     this.state.popupTaskNum = counter;
                     // Set the pop-up to clear after 30 seconds
                     this.state.popupObject = setTimeout(this.acceptPopup, 30000);
+                    // Play ding sound on popup
+                    let ding = new Audio("audio/ding.mp3");
+                    ding.play();
                 }
             }
             // Mark the next task as ongoing if we completed the previous one
