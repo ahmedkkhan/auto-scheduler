@@ -335,7 +335,7 @@ var ScheduleBuilder = function (_React$Component2) {
                 React.createElement(
                     "div",
                     { id: "scheduleBuilderTitle" },
-                    "Build your list of tasks in the table below. Auto Scheduler will automatically order and display your tasks when you hit the \"Start Schedule\" button.",
+                    "Build your list of tasks in the table below. Auto Scheduler will automatically order and display your tasks when you hit the \"Start Schedule\" button. Tasks are sorted by urgency level, with longer tasks given priority.",
                     React.createElement("hr", null)
                 ),
                 React.createElement(

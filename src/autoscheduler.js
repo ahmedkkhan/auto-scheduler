@@ -257,7 +257,8 @@ class ScheduleBuilder extends React.Component {
                 <h3>Schedule Builder</h3>
                 <br />
                 <div id="scheduleBuilderTitle">
-                    Build your list of tasks in the table below. Auto Scheduler will automatically order and display your tasks when you hit the "Start Schedule" button.
+                    Build your list of tasks in the table below. Auto Scheduler will automatically order and display your tasks when you hit the "Start Schedule" button. 
+                    Tasks are sorted by urgency level, with longer tasks given priority.
                     <hr />    
                 </div>
 
